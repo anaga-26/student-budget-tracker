@@ -107,6 +107,7 @@ register_button = tk.Button(
     command=register_user
 )
 register_button.pack(pady=25)
+root.bind("<Return>", lambda event: register_user())
 
 
 root.mainloop()

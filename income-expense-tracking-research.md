@@ -15,6 +15,41 @@ Examples of income include:
 
 The system should store the relevant information for each income transaction so that users can keep track of their available money.
 
+## Income Sources
+
+The Student Budget Tracker should allow students to record different sources of income.
+
+The identified income sources are:
+
+- Monthly allowance from parents
+- Part-time job income
+- Other sources of student income
+
+Each income source should be recorded as part of an income transaction so that students can keep track of the money they receive.
+
+## Income Amount
+
+The system should allow students to enter the amount of money received for each income transaction.
+
+The income amount should be recorded as a numerical value so that students can keep track of the total money they receive.
+
+## Income Date
+
+The system should allow students to record the date when the income is received.
+
+The income date should be stored with each income transaction so that students can keep track of when the money was received.
+
+## Income Description
+
+The system should allow students to enter a short description for each income transaction.
+
+The description should help students identify the purpose or details of the income received.
+
+## Document Income Requirements
+
+The identified income recording requirements should be documented clearly so that they can be used when developing the Student Budget Tracker.
+
+
 ## 3. Expense Tracking Requirements
 
 The system should allow users to record money spent by the student.

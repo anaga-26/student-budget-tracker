@@ -63,6 +63,43 @@ Examples of expenses include:
 
 Users should be able to record each expense as a separate transaction.
 
+### Expense Amount
+
+The system should allow students to enter the amount of money spent for each expense transaction.
+
+The expense amount should be recorded as a numerical value so that students can keep track of their total spending.
+
+### Expense Date
+
+The system should allow students to record the date on which each expense occurred.
+
+Recording the expense date helps students track their spending over time and understand when their money is being spent.
+
+### Expense Types
+
+The system should allow students to record different types of expenses.
+
+Examples of expense types include:
+
+- Food
+- Transportation
+- Accommodation
+- Education
+- Entertainment
+- Other expenses
+
+### Expense Description
+
+The system should allow students to add a short description for each expense transaction.
+
+The description can provide additional details about the expense, such as what the money was spent on.
+
+### Document Expense Recording Requirements
+
+The identified expense recording requirements should be documented clearly for use during the development of the Student Budget Tracker.
+
+Each expense transaction should include important information such as the expense amount, expense date, expense type, and a short description.
+
 ## 4. Expense Categorisation Requirements
 
 Expense transactions should be organised into categories to help users understand where their money is being spent.

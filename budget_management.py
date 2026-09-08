@@ -371,6 +371,43 @@ def generate_spending_charts():
     figure.tight_layout()
     plt.show()
 
+def generate_financial_report():
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT COALESCE(SUM(amount), 0)
+        FROM Transactions
+        WHERE user_id = 1 AND type = 'Income'
+    """)
+    total_income = cursor.fetchone()[0]
+
+    cursor.execute("""
+        SELECT COALESCE(SUM(amount), 0)
+        FROM Transactions
+        WHERE user_id = 1 AND type = 'Expense'
+    """)
+    total_expenses = cursor.fetchone()[0]
+
+    cursor.execute("""
+        SELECT monthly_budget
+        FROM Budget
+        WHERE user_id = 1
+    """)
+    budget_result = cursor.fetchone()
+
+    monthly_budget = budget_result[0] if budget_result else 0
+    remaining_balance = total_income - total_expenses
+    remaining_budget = monthly_budget - total_expenses
+
+    messagebox.showinfo(
+        "Financial Report",
+        f"Monthly Budget: RM {monthly_budget:.2f}\n"
+        f"Total Income: RM {total_income:.2f}\n"
+        f"Total Expenses: RM {total_expenses:.2f}\n"
+        f"Remaining Balance: RM {remaining_balance:.2f}\n"
+        f"Remaining Budget: RM {remaining_budget:.2f}"
+    )
+
 def add_expense():
     amount = expense_amount_entry.get().strip()
     category = expense_category_var.get()
@@ -521,6 +558,12 @@ tk.Button(
     text="Generate Spending Charts",
     font=("Arial", 11, "bold"),
     command=generate_spending_charts,
+).pack(pady=4)
+tk.Button(
+    root,
+    text="Generate Financial Report",
+    font=("Arial", 11, "bold"),
+    command=generate_financial_report,
 ).pack(pady=4)
 # ---------------- ADD EXPENSE ----------------
 

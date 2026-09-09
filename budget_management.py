@@ -408,6 +408,87 @@ def generate_financial_report():
         f"Remaining Budget: RM {remaining_budget:.2f}"
     )
 
+def delete_transaction():
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT transaction_id, type, amount, category, date
+        FROM Transactions
+        WHERE user_id = 1
+        ORDER BY date DESC
+    """)
+    transactions = cursor.fetchall()
+
+    if not transactions:
+        messagebox.showinfo("No Transactions", "There are no transactions to delete.")
+        return
+
+    delete_window = tk.Toplevel(root)
+    delete_window.title("Delete Transaction")
+    delete_window.geometry("500x420")
+
+    tk.Label(
+        delete_window,
+        text="Current Transactions",
+        font=("Arial", 14, "bold")
+    ).pack(pady=8)
+
+    transaction_text = tk.Text(delete_window, height=12, font=("Arial", 10))
+    transaction_text.pack(fill="x", padx=10)
+
+    for transaction_id, transaction_type, amount, category, date in transactions:
+        transaction_text.insert(
+            tk.END,
+            f"ID {transaction_id} | {date} | {transaction_type} | "
+            f"{category} | RM {amount:.2f}\n"
+        )
+
+    transaction_text.config(state="disabled")
+
+    tk.Label(delete_window, text="Transaction ID to delete:").pack(pady=(10, 0))
+    transaction_id_entry = tk.Entry(delete_window, width=25)
+    transaction_id_entry.pack()
+
+    def confirm_delete():
+        transaction_id = transaction_id_entry.get().strip()
+
+        try:
+            transaction_id = int(transaction_id)
+        except ValueError:
+            messagebox.showerror(
+                "Invalid ID",
+                "Please enter a whole-number transaction ID."
+            )
+            return
+
+        confirmed = messagebox.askyesno(
+            "Confirm Delete",
+            "Are you sure you want to delete this transaction?"
+        )
+
+        if not confirmed:
+            return
+
+        cursor.execute("""
+            DELETE FROM Transactions
+            WHERE transaction_id = ? AND user_id = 1
+        """, (transaction_id,))
+
+        if cursor.rowcount == 0:
+            messagebox.showerror("Not Found", "Transaction ID was not found.")
+            return
+
+        conn.commit()
+        messagebox.showinfo("Deleted", "Transaction deleted successfully.")
+        delete_window.destroy()
+
+    tk.Button(
+        delete_window,
+        text="Delete Transaction",
+        font=("Arial", 11, "bold"),
+        command=confirm_delete,
+    ).pack(pady=15)
+
 def add_expense():
     amount = expense_amount_entry.get().strip()
     category = expense_category_var.get()
@@ -564,6 +645,12 @@ tk.Button(
     text="Generate Financial Report",
     font=("Arial", 11, "bold"),
     command=generate_financial_report,
+).pack(pady=4)
+tk.Button(
+    root,
+    text="Delete Transaction",
+    font=("Arial", 11, "bold"),
+    command=delete_transaction,
 ).pack(pady=4)
 # ---------------- ADD EXPENSE ----------------
 

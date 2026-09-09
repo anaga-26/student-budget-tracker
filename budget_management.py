@@ -1,4 +1,5 @@
 import sqlite3
+import matplotlib.pyplot as plt
 import tkinter as tk
 from tkinter import messagebox
 
@@ -182,6 +183,231 @@ def calculate_remaining_budget():
         f"Total Expenses: RM {total_expenses:.2f}\n"
         f"Remaining Budget: RM {remaining_budget:.2f}"
     )
+def display_total_income():
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT COALESCE(SUM(amount), 0)
+        FROM Transactions
+        WHERE user_id = 1 AND type = 'Income'
+    """)
+
+    total_income = cursor.fetchone()[0]
+
+    messagebox.showinfo(
+        "Total Income",
+        f"Total Income: RM {total_income:.2f}"
+    )
+
+def display_total_expenses():
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT COALESCE(SUM(amount), 0)
+        FROM Transactions
+        WHERE user_id = 1 AND type = 'Expense'
+    """)
+
+    total_expenses = cursor.fetchone()[0]
+
+    messagebox.showinfo(
+        "Total Expenses",
+        f"Total Expenses: RM {total_expenses:.2f}"
+    )
+
+def view_transaction_history():
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT type, amount, category, date
+        FROM Transactions
+        WHERE user_id = 1
+        ORDER BY date DESC
+    """)
+    transactions = cursor.fetchall()
+
+    history_window = tk.Toplevel(root)
+    history_window.title("Transaction History")
+    history_window.geometry("500x400")
+
+    text_box = tk.Text(history_window, font=("Arial", 11))
+    text_box.pack(fill="both", expand=True, padx=10, pady=10)
+
+    if not transactions:
+        text_box.insert(tk.END, "No transactions found.")
+    else:
+        for transaction_type, amount, category, date in transactions:
+            text_box.insert(
+                tk.END,
+                f"{date} | {transaction_type} | {category} | RM {amount:.2f}\n"
+            )
+
+    text_box.config(state="disabled")
+
+def calculate_remaining_balance():
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT COALESCE(SUM(amount), 0)
+        FROM Transactions
+        WHERE user_id = 1 AND type = 'Income'
+    """)
+    total_income = cursor.fetchone()[0]
+
+    cursor.execute("""
+        SELECT COALESCE(SUM(amount), 0)
+        FROM Transactions
+        WHERE user_id = 1 AND type = 'Expense'
+    """)
+    total_expenses = cursor.fetchone()[0]
+
+    remaining_balance = total_income - total_expenses
+
+    messagebox.showinfo(
+        "Remaining Balance",
+        f"Total Income: RM {total_income:.2f}\n"
+        f"Total Expenses: RM {total_expenses:.2f}\n"
+        f"Remaining Balance: RM {remaining_balance:.2f}"
+    )
+
+def display_budget_warning():
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT monthly_budget
+        FROM Budget
+        WHERE user_id = 1
+    """)
+    budget_result = cursor.fetchone()
+
+    if budget_result is None:
+        messagebox.showerror(
+            "No Budget Set",
+            "Please set your monthly budget first."
+        )
+        return
+
+    monthly_budget = budget_result[0]
+
+    cursor.execute("""
+        SELECT COALESCE(SUM(amount), 0)
+        FROM Transactions
+        WHERE user_id = 1 AND type = 'Expense'
+    """)
+    total_expenses = cursor.fetchone()[0]
+
+    if total_expenses > monthly_budget:
+        exceeded_amount = total_expenses - monthly_budget
+        messagebox.showwarning(
+            "Budget Warning",
+            f"You exceeded your budget by RM {exceeded_amount:.2f}!"
+        )
+    else:
+        messagebox.showinfo(
+            "Budget Status",
+            f"You are within your budget.\n"
+            f"Remaining budget: RM {monthly_budget - total_expenses:.2f}"
+        )
+
+def track_spending_by_category():
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT category, COALESCE(SUM(amount), 0)
+        FROM Transactions
+        WHERE user_id = 1 AND type = 'Expense'
+        GROUP BY category
+        ORDER BY SUM(amount) DESC
+    """)
+    category_totals = cursor.fetchall()
+
+    category_window = tk.Toplevel(root)
+    category_window.title("Spending by Category")
+    category_window.geometry("400x300")
+
+    text_box = tk.Text(category_window, font=("Arial", 12))
+    text_box.pack(fill="both", expand=True, padx=10, pady=10)
+
+    if not category_totals:
+        text_box.insert(tk.END, "No expense records found.")
+    else:
+        for category, total in category_totals:
+            text_box.insert(tk.END, f"{category}: RM {total:.2f}\n")
+
+    text_box.config(state="disabled")
+
+def generate_spending_charts():
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT category, COALESCE(SUM(amount), 0)
+        FROM Transactions
+        WHERE user_id = 1 AND type = 'Expense'
+        GROUP BY category
+        ORDER BY SUM(amount) DESC
+    """)
+    category_totals = cursor.fetchall()
+
+    if not category_totals:
+        messagebox.showinfo(
+            "No Data",
+            "Please add at least one expense before generating charts."
+        )
+        return
+
+    categories = [item[0] for item in category_totals]
+    totals = [item[1] for item in category_totals]
+
+    figure, charts = plt.subplots(1, 2, figsize=(10, 4))
+
+    charts[0].pie(totals, labels=categories, autopct="%1.1f%%")
+    charts[0].set_title("Spending by Category")
+
+    charts[1].bar(categories, totals, color="skyblue")
+    charts[1].set_title("Expense Amounts")
+    charts[1].set_xlabel("Category")
+    charts[1].set_ylabel("Amount (RM)")
+
+    figure.tight_layout()
+    plt.show()
+
+def generate_financial_report():
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT COALESCE(SUM(amount), 0)
+        FROM Transactions
+        WHERE user_id = 1 AND type = 'Income'
+    """)
+    total_income = cursor.fetchone()[0]
+
+    cursor.execute("""
+        SELECT COALESCE(SUM(amount), 0)
+        FROM Transactions
+        WHERE user_id = 1 AND type = 'Expense'
+    """)
+    total_expenses = cursor.fetchone()[0]
+
+    cursor.execute("""
+        SELECT monthly_budget
+        FROM Budget
+        WHERE user_id = 1
+    """)
+    budget_result = cursor.fetchone()
+
+    monthly_budget = budget_result[0] if budget_result else 0
+    remaining_balance = total_income - total_expenses
+    remaining_budget = monthly_budget - total_expenses
+
+    messagebox.showinfo(
+        "Financial Report",
+        f"Monthly Budget: RM {monthly_budget:.2f}\n"
+        f"Total Income: RM {total_income:.2f}\n"
+        f"Total Expenses: RM {total_expenses:.2f}\n"
+        f"Remaining Balance: RM {remaining_balance:.2f}\n"
+        f"Remaining Budget: RM {remaining_budget:.2f}"
+    )
+
 def add_expense():
     amount = expense_amount_entry.get().strip()
     category = expense_category_var.get()
@@ -222,8 +448,26 @@ def add_expense():
 
 root = tk.Tk()
 root.title("Student Budget Tracker")
+
 root.geometry("500x700")
 
+canvas = tk.Canvas(root)
+scrollbar = tk.Scrollbar(root, orient="vertical", command=canvas.yview)
+
+scrollable_frame = tk.Frame(canvas)
+
+scrollable_frame.bind(
+    "<Configure>",
+    lambda event: canvas.configure(scrollregion=canvas.bbox("all"))
+)
+
+canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+canvas.configure(yscrollcommand=scrollbar.set)
+
+canvas.pack(side="left", fill="both", expand=True)
+scrollbar.pack(side="right", fill="y")
+
+root = scrollable_frame
 
 # ---------------- MONTHLY BUDGET ----------------
 
@@ -272,6 +516,55 @@ tk.Button(
 ).pack(pady=15)
 
 
+tk.Button(
+    root,
+    text="Display Total Income",
+    font=("Arial", 11, "bold"),
+    command=display_total_income,
+).pack(pady=4)
+tk.Button(
+    root,
+    text="Display Total Expenses",
+    font=("Arial", 11, "bold"),
+    command=display_total_expenses,
+).pack(pady=4)
+tk.Button(
+    root,
+    text="View Transaction History",
+    font=("Arial", 11, "bold"),
+    command=view_transaction_history,
+).pack(pady=4)
+tk.Button(
+    root,
+    text="Check Remaining Balance",
+    font=("Arial", 11, "bold"),
+    command=calculate_remaining_balance,
+).pack(pady=4)
+tk.Button(
+    root,
+    text="Display Budget Warning",
+    font=("Arial", 11, "bold"),
+    command=display_budget_warning,
+).pack(pady=4)
+tk.Button(
+    root,
+    text="Track Spending by Category",
+    font=("Arial", 11, "bold"),
+    command=track_spending_by_category,
+).pack(pady=4)
+
+tk.Button(
+    root,
+    text="Generate Spending Charts",
+    font=("Arial", 11, "bold"),
+    command=generate_spending_charts,
+).pack(pady=4)
+tk.Button(
+    root,
+    text="Generate Financial Report",
+    font=("Arial", 11, "bold"),
+    command=generate_financial_report,
+).pack(pady=4)
 # ---------------- ADD EXPENSE ----------------
 
 tk.Label(root, text="Add Expense", font=("Arial", 18, "bold")).pack(pady=15)

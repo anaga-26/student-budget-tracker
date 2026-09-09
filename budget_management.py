@@ -408,6 +408,34 @@ def generate_financial_report():
         f"Remaining Budget: RM {remaining_budget:.2f}"
     )
 
+def monthly_spending_summary():
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT strftime('%Y-%m', date) AS month,
+               COALESCE(SUM(amount), 0)
+        FROM Transactions
+        WHERE user_id = 1 AND type = 'Expense'
+        GROUP BY strftime('%Y-%m', date)
+        ORDER BY month DESC
+    """)
+    monthly_totals = cursor.fetchall()
+
+    summary_window = tk.Toplevel(root)
+    summary_window.title("Monthly Spending Summary")
+    summary_window.geometry("400x300")
+
+    text_box = tk.Text(summary_window, font=("Arial", 12))
+    text_box.pack(fill="both", expand=True, padx=10, pady=10)
+
+    if not monthly_totals:
+        text_box.insert(tk.END, "No expense records found.")
+    else:
+        for month, total in monthly_totals:
+            text_box.insert(tk.END, f"{month}: RM {total:.2f}\n")
+
+    text_box.config(state="disabled")
+
 def add_expense():
     amount = expense_amount_entry.get().strip()
     category = expense_category_var.get()
@@ -564,6 +592,12 @@ tk.Button(
     text="Generate Financial Report",
     font=("Arial", 11, "bold"),
     command=generate_financial_report,
+).pack(pady=4)
+tk.Button(
+    root,
+    text="Monthly Spending Summary",
+    font=("Arial", 11, "bold"),
+    command=monthly_spending_summary,
 ).pack(pady=4)
 # ---------------- ADD EXPENSE ----------------
 

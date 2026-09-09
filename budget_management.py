@@ -583,6 +583,10 @@ tk.OptionMenu(
     "Transport",
     "Shopping",
     "Bills",
+    "Entertainment",
+    "Education",
+    "Health",
+    "Other",
 ).pack(pady=2)
 
 tk.Label(root, text="Date (YYYY-MM-DD):").pack()

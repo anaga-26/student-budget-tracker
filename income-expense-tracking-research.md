@@ -100,15 +100,42 @@ The identified expense recording requirements should be documented clearly for u
 
 Each expense transaction should include important information such as the expense amount, expense date, expense type, and a short description.
 
+
 ## 4. Expense Categorisation Requirements
 
 Expense transactions should be organised into categories to help users understand where their money is being spent.
 
 The project specification identifies categories such as:
-- Food
-- Transport
-- Shopping
+- Food and Dining
+- Transportation
+- Education
+- Accommodation
+- Bills and Utilities
+- Healthcare
+- Personal Care
 - Entertainment
+- Other
+
+### Food Category
+
+The Food Category includes expenses related to meals, drinks, groceries, snacks, and other food purchases.This category helps students monitor how much money they spend on their daily food needs.
+
+### Transportation Category
+
+The Transportation Category includes expenses related to public transport, fuel, e-hailing services, parking, and other travel costs. This category helps students monitor the amount of money spent on travelling to university and other places.
+
+### Shopping Category
+
+The Shopping Category includes expenses related to clothing, personal items, accessories, and other purchases.This category helps students monitor their spending on non-essential and personal shopping needs.
+
+### Entertainment Category
+
+The Entertainment Category includes expenses related to movies, games, streaming services, events, and other recreational activities. This category helps students monitor how much money they spend on entertainment and leisure activities.
+
+### Daily Necessities Category
+
+The Daily Necessities Category includes expenses for essential everyday items such as toiletries, hygiene products, household items, and other basic personal needs.This category helps students monitor their spending on important daily necessities.
+
 
 ## 5. Transaction Management Requirements
 

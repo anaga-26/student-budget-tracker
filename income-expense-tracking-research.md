@@ -295,6 +295,138 @@ The transaction history should allow users to:
 
 These features should make it easier for students to understand and manage their income and expenses.
 
+## Data Field Requirements
+
+### Transaction Type Field
+
+The Student Budget Tracker should include a transaction type field to identify whether a financial transaction is an income or an expense.
+
+The transaction type should contain one of the following values:
+
+- Income
+- Expense
+
+This field allows the system to distinguish between money received and money spent by the student.
+
+### Amount Field
+
+The Student Budget Tracker should include an amount field to record the monetary value of each transaction.
+
+The amount field should:
+
+- Store the amount of money involved in the transaction.
+- Use a numerical value.
+- Allow the system to calculate income and expense totals.
+
+This field is important for tracking the amount of money received or spent by the student.
+
+### Date Field
+
+The Student Budget Tracker should include a date field to record when each transaction occurs.
+
+The date field should store the date associated with the income or expense transaction.
+
+Recording the transaction date allows students to review their financial activities over time.
+
+### Category Field
+
+The Student Budget Tracker should include a category field to organise transactions.
+
+For expense transactions, categories may include:
+
+- Food
+- Transportation
+- Shopping
+- Entertainment
+- Daily Necessities
+
+The category field helps students understand where their money is being spent.
+
+### Description Field
+
+The Student Budget Tracker should include a description field to provide additional information about a transaction.
+
+The description should contain a short explanation of the income or expense.
+
+This field helps students identify the purpose or details of each transaction.
+
+### Finalize Income and Expense Data Fields
+
+The Income and Expense Tracking module should use the following data fields for each financial transaction:
+
+- Transaction type
+- Amount
+- Date
+- Category
+- Description
+
+These fields provide the basic information required to record, organise, view, edit, and manage income and expense transactions in the Student Budget Tracker.
+
+## Income and Expense Tracking Function Review
+
+### Review Income Recording Function
+
+The income recording function should allow students to record money received from different income sources.
+
+The function should collect the required income information, including:
+
+- Income source
+- Amount
+- Date
+- Description
+
+The recorded information should be stored as an income transaction.
+
+### Review Expense Recording Function
+
+The expense recording function should allow students to record money spent on different expenses.
+
+The function should collect the required expense information, including:
+
+- Amount
+- Date
+- Expense category
+- Description
+
+The recorded information should be stored as an expense transaction.
+
+### Review Transaction Editing and Deletion
+
+The transaction management functions should allow students to edit or delete existing transactions.
+
+The editing function should allow users to update incorrect transaction information.
+
+The deletion function should require confirmation before removing a transaction.
+
+The system should provide appropriate error messages when an editing or deletion operation cannot be completed successfully.
+
+### Review Transaction History
+
+The transaction history function should allow students to view their recorded income and expense transactions.
+
+The history should provide:
+
+- Transaction details
+- Transaction list display
+- Sorting options
+- Filtering options
+
+These features should help students review and understand their previous financial activities.
+
+### Finalize Income and Expense Tracking Functions
+
+The Income and Expense Tracking module should provide the following main functions:
+
+- Record income
+- Record expenses
+- View transaction history
+- Sort transactions
+- Filter transactions
+- Edit transactions
+- Delete transactions
+
+These functions should provide students with a simple and organised way to manage their income and expenses.
+
 
 ## 7. Data Storage Requirements
 

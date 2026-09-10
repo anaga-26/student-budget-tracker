@@ -228,6 +228,74 @@ The project specification identifies:
 
 The transaction type should identify whether the record is an income or an expense.
 
+### Transaction History Information
+
+The Student Budget Tracker should allow users to view their previous income and expense transactions in a transaction history.
+
+The transaction history should display important information for each transaction, including:
+
+- Transaction type
+- Transaction amount
+- Transaction date
+- Transaction category
+- Transaction description
+
+Displaying these details allows students to review their previous transactions and understand their income and spending records.
+
+### Transaction List Display
+
+The Student Budget Tracker should display recorded income and expense transactions in a clear and organised list.
+
+The transaction list should show important details for each transaction, including:
+
+- Transaction type
+- Transaction amount
+- Transaction date
+- Transaction category
+- Transaction description
+
+The transaction list should allow students to easily read and review their previous financial transactions.
+
+### Transaction Sorting
+
+The Student Budget Tracker should allow users to sort their transaction history to make it easier to review their financial records.
+
+The transaction history should provide sorting options such as:
+
+- Sort by transaction date
+- Sort by transaction amount
+- Sort by transaction type
+- Sort by category
+
+Sorting the transactions helps students organise their records and find relevant income or expense information more easily.
+
+### Transaction Filtering
+
+The Student Budget Tracker should allow users to filter their transaction history to view specific types of financial records.
+
+The transaction history should provide filtering options such as:
+
+- Filter by transaction type
+- Filter by category
+- Filter by date
+
+Filtering allows students to focus on specific income or expense transactions and makes it easier to review their financial records.
+
+### Transaction History Requirements
+
+The Student Budget Tracker should provide a clear and organised transaction history for users to review their financial records.
+
+The transaction history should allow users to:
+
+- View recorded income and expense transactions.
+- See important transaction details.
+- Sort transactions by relevant information.
+- Filter transactions based on specific criteria.
+- Review their previous financial activities easily.
+
+These features should make it easier for students to understand and manage their income and expenses.
+
+
 ## 7. Data Storage Requirements
 
 The system will use an SQLite database to store financial transaction records. The database should allow the system to insert, update, and retrieve transaction information when users manage their income and expenses.

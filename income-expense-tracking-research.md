@@ -148,6 +148,74 @@ The system should support:
 - Deleting existing transactions
 - Viewing transaction history
 
+### Editable Transaction Information
+
+The Student Budget Tracker should allow users to edit the details of an existing transaction when incorrect information has been recorded.
+
+The editable transaction information should include:
+
+- Transaction amount
+- Transaction date
+- Transaction type
+- Expense category
+- Transaction description
+
+Allowing these details to be edited helps students correct mistakes and keep their income and expense records accurate.
+
+### Transaction Editing Process
+
+The Student Budget Tracker should provide a simple process for users to edit an existing transaction.
+
+The editing process should allow users to:
+
+1. Select the transaction they want to edit.
+2. View the existing transaction details.
+3. Modify the required information.
+4. Save the updated transaction.
+5. Ensure that the updated information replaces the previous information.
+
+The system should keep the transaction record updated so that users can maintain accurate income and expense records.
+
+### Transaction Deletion Process
+
+The Student Budget Tracker should allow users to remove an existing transaction when it is no longer required or was recorded by mistake.
+
+The deletion process should allow users to:
+
+1. Select the transaction they want to delete.
+2. View the transaction details before deleting it.
+3. Confirm that they want to delete the selected transaction.
+4. Remove the transaction from the transaction records.
+5. Update the transaction history after the deletion.
+
+The deletion process should help users keep their transaction records organised and accurate.
+
+### Delete Confirmation
+
+The Student Budget Tracker should ask users to confirm before deleting a transaction.
+
+The confirmation should clearly indicate that the selected transaction will be removed from the records.
+
+The system should provide options to:
+
+- Confirm the deletion and remove the transaction.
+- Cancel the deletion and keep the transaction.
+
+This confirmation step helps prevent users from accidentally deleting an important transaction.
+
+### Error Handling
+
+The Student Budget Tracker should provide appropriate feedback when an error occurs while editing or deleting a transaction.
+
+The system should handle situations such as:
+
+- The selected transaction cannot be found.
+- The user enters invalid transaction information.
+- The transaction cannot be updated successfully.
+- The transaction cannot be deleted successfully.
+
+The system should display a clear message to inform the user about the problem and allow them to try again.
+
 ## 6. Transaction Information Requirements
 
 Each transaction should contain important information needed for financial tracking.

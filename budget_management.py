@@ -478,13 +478,36 @@ def add_expense():
 root = tk.Tk()
 root.title("Student Budget Tracker")
 root.geometry("1100x700")
+root.configure(bg="#F4F7FB")
+
+root.option_add("*Button.Background", "#0F766E")
+root.option_add("*Button.Foreground", "white")
+root.option_add("*Button.ActiveBackground", "#115E59")
+root.option_add("*Button.ActiveForeground", "white")
+root.option_add("*Label.Background", "#F4F7FB")
+root.option_add("*Label.Foreground", "#1F2937")
+root.option_add("*LabelFrame.Background", "white")
+root.option_add("*LabelFrame.Foreground", "#0F172A")
+
+header = tk.Frame(root, bg="#0F172A", height=85)
+header.pack(fill="x")
+header.pack_propagate(False)
 
 tk.Label(
-    root,
+    header,
     text="Student Budget Tracker",
     font=("Arial", 24, "bold"),
-).pack(pady=15)
+    bg="#0F172A",
+    fg="white",
+).pack(pady=(14, 0))
 
+tk.Label(
+    header,
+    text="Manage your money. Build better habits.",
+    font=("Arial", 11),
+    bg="#0F172A",
+    fg="#99F6E4",
+).pack()
 main_frame = tk.Frame(root)
 main_frame.pack(fill="both", expand=True, padx=25, pady=10)
 

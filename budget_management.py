@@ -436,6 +436,99 @@ def monthly_spending_summary():
             text_box.insert(tk.END, f"{month}: RM {total:.2f}\n")
 
     text_box.config(state="disabled")
+def edit_transaction():
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT transaction_id, type, amount, category, date
+        FROM Transactions
+        WHERE user_id = 1
+        ORDER BY date DESC
+    """)
+    transactions = cursor.fetchall()
+
+    if not transactions:
+        messagebox.showinfo("No Transactions", "There are no transactions to edit.")
+        return
+
+    edit_window = tk.Toplevel(root)
+    edit_window.title("Edit Transaction")
+    edit_window.geometry("500x500")
+
+    tk.Label(
+        edit_window,
+        text="Current Transactions",
+        font=("Arial", 14, "bold")
+    ).pack(pady=8)
+
+    transaction_text = tk.Text(edit_window, height=10, font=("Arial", 10))
+    transaction_text.pack(fill="x", padx=10)
+
+    for transaction_id, transaction_type, amount, category, date in transactions:
+        transaction_text.insert(
+            tk.END,
+            f"ID {transaction_id} | {date} | {transaction_type} | "
+            f"{category} | RM {amount:.2f}\n"
+        )
+
+    transaction_text.config(state="disabled")
+
+    tk.Label(edit_window, text="Transaction ID to edit:").pack(pady=(10, 0))
+    transaction_id_entry = tk.Entry(edit_window, width=25)
+    transaction_id_entry.pack()
+
+    tk.Label(edit_window, text="New amount (RM):").pack(pady=(8, 0))
+    amount_entry = tk.Entry(edit_window, width=25)
+    amount_entry.pack()
+
+    tk.Label(edit_window, text="New category:").pack(pady=(8, 0))
+    category_entry = tk.Entry(edit_window, width=25)
+    category_entry.pack()
+
+    tk.Label(edit_window, text="New date (YYYY-MM-DD):").pack(pady=(8, 0))
+    date_entry = tk.Entry(edit_window, width=25)
+    date_entry.pack()
+
+    def save_transaction_changes():
+        transaction_id = transaction_id_entry.get().strip()
+        amount = amount_entry.get().strip()
+        category = category_entry.get().strip()
+        date = date_entry.get().strip()
+
+        if not transaction_id or not amount or not category or not date:
+            messagebox.showwarning("Input Error", "Please fill in every field.")
+            return
+
+        try:
+            transaction_id = int(transaction_id)
+            amount = float(amount)
+        except ValueError:
+            messagebox.showerror(
+                "Invalid Input",
+                "Transaction ID must be a whole number and amount must be a number."
+            )
+            return
+
+        cursor.execute("""
+            UPDATE Transactions
+            SET amount = ?, category = ?, date = ?
+            WHERE transaction_id = ? AND user_id = 1
+        """, (amount, category, date, transaction_id))
+
+        if cursor.rowcount == 0:
+            messagebox.showerror("Not Found", "Transaction ID was not found.")
+            return
+
+        conn.commit()
+        messagebox.showinfo("Success", "Transaction updated successfully.")
+        edit_window.destroy()
+
+    tk.Button(
+        edit_window,
+        text="Save Changes",
+        font=("Arial", 11, "bold"),
+        command=save_transaction_changes,
+    ).pack(pady=15)
 
 def add_expense():
     amount = expense_amount_entry.get().strip()
@@ -599,6 +692,24 @@ tk.Button(
     command=add_income,
 ).pack(pady=8)
 
+tk.Button(
+    root,
+    text="Generate Spending Charts",
+    font=("Arial", 11, "bold"),
+    command=generate_spending_charts,
+).pack(pady=4)
+tk.Button(
+    root,
+    text="Generate Financial Report",
+    font=("Arial", 11, "bold"),
+    command=generate_financial_report,
+).pack(pady=4)
+tk.Button(
+    root,
+    text="Edit Transaction",
+    font=("Arial", 11, "bold"),
+    command=edit_transaction,
+).pack(pady=4)
 # ---------------- ADD EXPENSE ----------------
 
 tk.Label(expense_frame, text="Add Expense", font=("Arial", 16, "bold")).pack(pady=5)
@@ -624,6 +735,7 @@ tk.OptionMenu(
 ).pack(pady=3)
 
 tk.Label(expense_frame, text="Date (YYYY-MM-DD):").pack()
+).pack(pady=2)
 
 expense_date_entry = tk.Entry(expense_frame, width=25)
 expense_date_entry.pack(pady=3)

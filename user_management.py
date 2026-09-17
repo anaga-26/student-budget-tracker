@@ -85,6 +85,9 @@ def show_dashboard():
     for widget in root.winfo_children():
         widget.destroy()
 
+    # Disable Enter key on dashboard
+    root.unbind("<Return>")
+
     root.title("Student Budget Tracker")
 
     welcome_label = tk.Label(
@@ -101,13 +104,151 @@ def show_dashboard():
     )
     subtitle_label.pack(pady=5)
 
+    edit_profile_button = tk.Button(
+        root,
+        text="Edit Profile",
+        width=20,
+        command=show_edit_profile
+    )
+    edit_profile_button.pack(pady=10)
+
     logout_button = tk.Button(
         root,
         text="Logout",
         width=20,
         command=logout_user
     )
-    logout_button.pack(pady=20)
+    logout_button.pack(pady=10)
+
+def update_profile(username_entry, password_entry, confirm_password_entry):
+    global logged_in_user_id
+
+    username = username_entry.get().strip()
+    new_password = password_entry.get()
+    confirm_password = confirm_password_entry.get()
+    # Username cannot be empty
+    if username == "":
+        messagebox.showerror("Error", "Username cannot be empty.")
+        return
+    # Check whether new passwords match
+    if new_password != confirm_password:
+        messagebox.showerror("Error", "New passwords do not match.")
+        return
+    connection = sqlite3.connect("budget_tracker.db")
+    cursor = connection.cursor()
+
+    try:
+        # If password box is empty, only update username
+        if new_password == "":
+            cursor.execute(
+                "UPDATE users SET username = ? WHERE user_id = ?",
+                (username, logged_in_user_id)
+            )
+
+        # If password is entered, update both username and password
+        else:
+            cursor.execute(
+                "UPDATE users SET username = ?, password = ? WHERE user_id = ?",
+                (username, new_password, logged_in_user_id)
+            )
+
+        connection.commit()
+        messagebox.showinfo("Success", "Profile updated successfully.")
+
+    except sqlite3.IntegrityError:
+        messagebox.showerror("Error", "Username already exists.")
+
+    finally:
+        connection.close()
+
+def show_edit_profile():
+    global logged_in_user_id
+
+    # Remove everything from the current screen
+    for widget in root.winfo_children():
+        widget.destroy()
+
+    root.title("Student Budget Tracker - Edit Profile")
+
+    # Get the current user's username from the database
+    connection = sqlite3.connect("budget_tracker.db")
+    cursor = connection.cursor()
+
+    cursor.execute(
+        "SELECT username FROM users WHERE user_id = ?",
+        (logged_in_user_id,)
+    )
+
+    user = cursor.fetchone()
+    connection.close()
+
+    # Page title
+    title_label = tk.Label(
+        root,
+        text="Edit Profile",
+        font=("Arial", 20, "bold")
+    )
+    title_label.pack(pady=25)
+
+    # Username
+    username_label = tk.Label(root, text="Username")
+    username_label.pack()
+
+    edit_username_entry = tk.Entry(root, width=30)
+    edit_username_entry.pack(pady=5)
+
+    # Display the existing username
+    if user:
+        edit_username_entry.insert(0, user[0])
+
+    # New password
+    password_label = tk.Label(root, text="New Password")
+    password_label.pack()
+
+    edit_password_entry = tk.Entry(root, width=30, show="*")
+    edit_password_entry.pack(pady=5)
+    # Confirm new password
+    confirm_password_label = tk.Label(root, text="Confirm New Password")
+    confirm_password_label.pack()
+
+    confirm_password_entry = tk.Entry(root, width=30, show="*")
+    confirm_password_entry.pack(pady=5)
+
+    # Save button
+    save_button = tk.Button(
+    root,
+    text="Save Changes",
+    width=20,
+    command=lambda: update_profile(
+    edit_username_entry,
+    edit_password_entry,
+    confirm_password_entry
+)
+)
+    save_button.pack(pady=15)
+
+    # Back button
+    back_button = tk.Button(
+        root,
+        text="Back to Dashboard",
+        width=20,
+        command=show_dashboard
+    )
+    back_button.pack()
+
+    # Remove previous Enter action
+    root.unbind("<Return>")
+                
+    # Allow Enter key to save profile changes
+    root.bind(
+    "<Return>",
+    lambda event: update_profile(
+        edit_username_entry,
+        edit_password_entry,
+        confirm_password_entry
+    )
+)
+
 
 def login_user(username_entry, password_entry):
     global logged_in_user_id
@@ -185,11 +326,6 @@ def show_login():
 )
     login_button.pack(pady=20)
 
-    register_page_button = tk.Button(
-    root,
-    text="Don't have an account? Create Account",
-    command=show_register
-)
     register_page_button = tk.Button(
         root,
         text="Don't have an account? Create Account",

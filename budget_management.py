@@ -409,6 +409,7 @@ def generate_financial_report():
     )
 
 def delete_transaction():
+def edit_transaction():
     cursor = conn.cursor()
 
     cursor.execute("""
@@ -429,11 +430,21 @@ def delete_transaction():
 
     tk.Label(
         delete_window,
+        messagebox.showinfo("No Transactions", "There are no transactions to edit.")
+        return
+
+    edit_window = tk.Toplevel(root)
+    edit_window.title("Edit Transaction")
+    edit_window.geometry("500x500")
+
+    tk.Label(
+        edit_window,
         text="Current Transactions",
         font=("Arial", 14, "bold")
     ).pack(pady=8)
 
     transaction_text = tk.Text(delete_window, height=12, font=("Arial", 10))
+    transaction_text = tk.Text(edit_window, height=10, font=("Arial", 10))
     transaction_text.pack(fill="x", padx=10)
 
     for transaction_id, transaction_type, amount, category, date in transactions:
@@ -473,6 +484,47 @@ def delete_transaction():
             DELETE FROM Transactions
             WHERE transaction_id = ? AND user_id = 1
         """, (transaction_id,))
+    tk.Label(edit_window, text="Transaction ID to edit:").pack(pady=(10, 0))
+    transaction_id_entry = tk.Entry(edit_window, width=25)
+    transaction_id_entry.pack()
+
+    tk.Label(edit_window, text="New amount (RM):").pack(pady=(8, 0))
+    amount_entry = tk.Entry(edit_window, width=25)
+    amount_entry.pack()
+
+    tk.Label(edit_window, text="New category:").pack(pady=(8, 0))
+    category_entry = tk.Entry(edit_window, width=25)
+    category_entry.pack()
+
+    tk.Label(edit_window, text="New date (YYYY-MM-DD):").pack(pady=(8, 0))
+    date_entry = tk.Entry(edit_window, width=25)
+    date_entry.pack()
+
+    def save_transaction_changes():
+        transaction_id = transaction_id_entry.get().strip()
+        amount = amount_entry.get().strip()
+        category = category_entry.get().strip()
+        date = date_entry.get().strip()
+
+        if not transaction_id or not amount or not category or not date:
+            messagebox.showwarning("Input Error", "Please fill in every field.")
+            return
+
+        try:
+            transaction_id = int(transaction_id)
+            amount = float(amount)
+        except ValueError:
+            messagebox.showerror(
+                "Invalid Input",
+                "Transaction ID must be a whole number and amount must be a number."
+            )
+            return
+
+        cursor.execute("""
+            UPDATE Transactions
+            SET amount = ?, category = ?, date = ?
+            WHERE transaction_id = ? AND user_id = 1
+        """, (amount, category, date, transaction_id))
 
         if cursor.rowcount == 0:
             messagebox.showerror("Not Found", "Transaction ID was not found.")
@@ -487,6 +539,14 @@ def delete_transaction():
         text="Delete Transaction",
         font=("Arial", 11, "bold"),
         command=confirm_delete,
+        messagebox.showinfo("Success", "Transaction updated successfully.")
+        edit_window.destroy()
+
+    tk.Button(
+        edit_window,
+        text="Save Changes",
+        font=("Arial", 11, "bold"),
+        command=save_transaction_changes,
     ).pack(pady=15)
 
 def add_expense():
@@ -651,6 +711,9 @@ tk.Button(
     text="Delete Transaction",
     font=("Arial", 11, "bold"),
     command=delete_transaction,
+    text="Edit Transaction",
+    font=("Arial", 11, "bold"),
+    command=edit_transaction,
 ).pack(pady=4)
 # ---------------- ADD EXPENSE ----------------
 
@@ -670,6 +733,10 @@ tk.OptionMenu(
     "Transport",
     "Shopping",
     "Bills",
+    "Entertainment",
+    "Education",
+    "Health",
+    "Other",
 ).pack(pady=2)
 
 tk.Label(root, text="Date (YYYY-MM-DD):").pack()

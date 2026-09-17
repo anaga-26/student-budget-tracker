@@ -409,6 +409,7 @@ def generate_financial_report():
         f"Remaining Budget: RM {remaining_budget:.2f}"
     )
 
+def delete_transaction():
 def monthly_spending_summary():
     cursor = conn.cursor()
 
@@ -448,6 +449,15 @@ def edit_transaction():
     transactions = cursor.fetchall()
 
     if not transactions:
+        messagebox.showinfo("No Transactions", "There are no transactions to delete.")
+        return
+
+    delete_window = tk.Toplevel(root)
+    delete_window.title("Delete Transaction")
+    delete_window.geometry("500x420")
+
+    tk.Label(
+        delete_window,
         messagebox.showinfo("No Transactions", "There are no transactions to edit.")
         return
 
@@ -461,6 +471,7 @@ def edit_transaction():
         font=("Arial", 14, "bold")
     ).pack(pady=8)
 
+    transaction_text = tk.Text(delete_window, height=12, font=("Arial", 10))
     transaction_text = tk.Text(edit_window, height=10, font=("Arial", 10))
     transaction_text.pack(fill="x", padx=10)
 
@@ -473,6 +484,34 @@ def edit_transaction():
 
     transaction_text.config(state="disabled")
 
+    tk.Label(delete_window, text="Transaction ID to delete:").pack(pady=(10, 0))
+    transaction_id_entry = tk.Entry(delete_window, width=25)
+    transaction_id_entry.pack()
+
+    def confirm_delete():
+        transaction_id = transaction_id_entry.get().strip()
+
+        try:
+            transaction_id = int(transaction_id)
+        except ValueError:
+            messagebox.showerror(
+                "Invalid ID",
+                "Please enter a whole-number transaction ID."
+            )
+            return
+
+        confirmed = messagebox.askyesno(
+            "Confirm Delete",
+            "Are you sure you want to delete this transaction?"
+        )
+
+        if not confirmed:
+            return
+
+        cursor.execute("""
+            DELETE FROM Transactions
+            WHERE transaction_id = ? AND user_id = 1
+        """, (transaction_id,))
     tk.Label(edit_window, text="Transaction ID to edit:").pack(pady=(10, 0))
     transaction_id_entry = tk.Entry(edit_window, width=25)
     transaction_id_entry.pack()
@@ -520,6 +559,14 @@ def edit_transaction():
             return
 
         conn.commit()
+        messagebox.showinfo("Deleted", "Transaction deleted successfully.")
+        delete_window.destroy()
+
+    tk.Button(
+        delete_window,
+        text="Delete Transaction",
+        font=("Arial", 11, "bold"),
+        command=confirm_delete,
         messagebox.showinfo("Success", "Transaction updated successfully.")
         edit_window.destroy()
 
@@ -706,6 +753,9 @@ tk.Button(
 ).pack(pady=4)
 tk.Button(
     root,
+    text="Delete Transaction",
+    font=("Arial", 11, "bold"),
+    command=delete_transaction,
     text="Edit Transaction",
     font=("Arial", 11, "bold"),
     command=edit_transaction,

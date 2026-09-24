@@ -29,8 +29,9 @@ INCOME_SOURCES = [
 
 class StudentBudgetTracker:
 
-    def __init__(self, root):
+    def __init__(self, root, user_id):
         self.root = root
+        self.user_id = user_id
         self.root.title("Student Budget Tracker")
         self.root.geometry("700x500")
 
@@ -53,15 +54,17 @@ class StudentBudgetTracker:
 
         self.cur.execute("""
             CREATE TABLE IF NOT EXISTS transactions (
-                transaction_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                transaction_type TEXT NOT NULL,
-                amount REAL NOT NULL,
-                date TEXT NOT NULL,
-                category TEXT,
-                description TEXT,
-                income_source TEXT,
-                notes TEXT
-            )
+    transaction_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    transaction_type TEXT NOT NULL,
+    amount REAL NOT NULL,
+    date TEXT NOT NULL,
+    category TEXT,
+    description TEXT,
+    income_source TEXT,
+    notes TEXT,
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
+)
         """)
 
         self.conn.commit()
@@ -323,7 +326,7 @@ class StudentBudgetTracker:
                         income_source = ?,
                         notes = ?
 
-                    WHERE transaction_id = ?
+                    WHERE transaction_id = ? AND user_id = ?
                     """,
                     (
                         transaction_type,
@@ -333,7 +336,8 @@ class StudentBudgetTracker:
                         description,
                         income_source,
                         notes,
-                        transaction[0]
+                        transaction[0],
+                        self.user_id
                     )
                 )
 
@@ -353,27 +357,29 @@ class StudentBudgetTracker:
                 self.cur.execute(
                     """
                     INSERT INTO transactions
-                    (
-                        transaction_type,
-                        amount,
-                        date,
-                        category,
-                        description,
-                        income_source,
-                        notes
-                    )
+ (
+             user_id,
+             transaction_type,
+             amount,
+             date,
+             category,
+             description,
+             income_source,
+             notes
+ )
 
-                    VALUES (?, ?, ?, ?, ?, ?, ?)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                     """,
-                    (
-                        transaction_type,
-                        amount,
-                        transaction_date,
-                        category,
-                        description,
-                        income_source,
-                        notes
-                    )
+     (
+    self.user_id,
+    transaction_type,
+    amount,
+    transaction_date,
+    category,
+    description,
+    income_source,
+    notes
+    )
                 )
 
                 self.conn.commit()
@@ -640,22 +646,24 @@ class StudentBudgetTracker:
                 order_by = "amount ASC"
 
             query = f"""
-                SELECT
-                    transaction_id,
-                    transaction_type,
-                    amount,
-                    date,
-                    category,
-                    description,
-                    income_source,
-                    notes
+    SELECT
+        transaction_id,
+        transaction_type,
+        amount,
+        date,
+        category,
+        description,
+        income_source,
+        notes
 
-                FROM transactions
+    FROM transactions
 
-                ORDER BY {order_by}
-            """
+    WHERE user_id = ?
 
-            self.cur.execute(query)
+    ORDER BY {order_by}
+"""
+
+            self.cur.execute(query, (self.user_id,))
 
             transactions = self.cur.fetchall()
 
@@ -742,9 +750,9 @@ class StudentBudgetTracker:
 
                 FROM transactions
 
-                WHERE transaction_id = ?
+                WHERE transaction_id = ? AND user_id = ?
                 """,
-                (transaction_id,)
+                (transaction_id, self.user_id)
             )
 
             transaction = self.cur.fetchone()
@@ -806,9 +814,9 @@ class StudentBudgetTracker:
 
                 FROM transactions
 
-                WHERE transaction_id = ?
+                WHERE transaction_id = ? AND user_id = ?
                 """,
-                (transaction_id,)
+               (transaction_id, self.user_id)
             )
 
             transaction = self.cur.fetchone()
@@ -834,9 +842,9 @@ class StudentBudgetTracker:
             self.cur.execute(
                 """
                 DELETE FROM transactions
-                WHERE transaction_id = ?
+                WHERE transaction_id = ? AND user_id = ?
                 """,
-                (transaction_id,)
+                (transaction_id, self.user_id)
             )
 
             self.conn.commit()
@@ -870,19 +878,30 @@ class StudentBudgetTracker:
                 """
                 INSERT INTO transactions
                 (
-                    transaction_id,
-                    transaction_type,
-                    amount,
-                    date,
-                    category,
-                    description,
-                    income_source,
-                    notes
-                )
+    transaction_id,
+    user_id,
+    transaction_type,
+    amount,
+    date,
+    category,
+    description,
+    income_source,
+    notes
+)
 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
-                transaction
+               (
+    transaction[0],
+    self.user_id,
+    transaction[1],
+    transaction[2],
+    transaction[3],
+    transaction[4],
+    transaction[5],
+    transaction[6],
+    transaction[7]
+)
             )
 
             self.conn.commit()

@@ -161,7 +161,7 @@ def calculate_remaining_budget():
     cursor.execute("""
         SELECT monthly_budget
         FROM Budget
-        WHERE user_id = current_user_id
+        WHERE user_id = ?
     """, (current_user_id,))
     budget_result = cursor.fetchone()
 
@@ -174,7 +174,7 @@ def calculate_remaining_budget():
     cursor.execute("""
         SELECT COALESCE(SUM(amount), 0)
         FROM Transactions
-        WHERE user_id = current_user_id AND type = 'Expense'
+        WHERE user_id = ? AND type = 'Expense'
     """)
     total_expenses = cursor.fetchone()[0]
 
@@ -192,8 +192,8 @@ def display_total_income():
     cursor.execute("""
         SELECT COALESCE(SUM(amount), 0)
         FROM Transactions
-        WHERE user_id = current_user_id AND type = 'Income'
-    """)
+        WHERE user_id = ? AND type = 'Income'
+    """, (current_user_id,))
 
     total_income = cursor.fetchone()[0]
 
@@ -208,8 +208,8 @@ def display_total_expenses():
     cursor.execute("""
         SELECT COALESCE(SUM(amount), 0)
         FROM Transactions
-        WHERE user_id = current_user_id AND type = 'Expense'
-    """)
+        WHERE user_id = ? AND type = 'Expense'
+    """, (current_user_id,))
 
     total_expenses = cursor.fetchone()[0]
 
@@ -224,9 +224,9 @@ def view_transaction_history():
     cursor.execute("""
         SELECT type, amount, category, date
         FROM Transactions
-        WHERE user_id = current_user_id
+        WHERE user_id = ?
         ORDER BY date DESC
-    """)
+    """, (current_user_id,))
     transactions = cursor.fetchall()
 
     history_window = tk.Toplevel(root)
@@ -253,15 +253,15 @@ def calculate_remaining_balance():
     cursor.execute("""
         SELECT COALESCE(SUM(amount), 0)
         FROM Transactions
-        WHERE user_id = current_user_id AND type = 'Income'
-    """)
+        WHERE user_id = ? AND type = 'Income'
+    """, (current_user_id,))
     total_income = cursor.fetchone()[0]
 
     cursor.execute("""
         SELECT COALESCE(SUM(amount), 0)
         FROM Transactions
-        WHERE user_id = current_user_id AND type = 'Expense'
-    """)
+        WHERE user_id = ? AND type = 'Expense'
+    """, (current_user_id,)) 
     total_expenses = cursor.fetchone()[0]
 
     remaining_balance = total_income - total_expenses
@@ -279,8 +279,8 @@ def display_budget_warning():
     cursor.execute("""
         SELECT monthly_budget
         FROM Budget
-        WHERE user_id = current_user_id
-    """)
+        WHERE user_id = ?
+    """, (current_user_id,))
     budget_result = cursor.fetchone()
 
     if budget_result is None:
@@ -295,8 +295,8 @@ def display_budget_warning():
     cursor.execute("""
         SELECT COALESCE(SUM(amount), 0)
         FROM Transactions
-        WHERE user_id = current_user_id AND type = 'Expense'
-    """)
+        WHERE user_id = ? AND type = 'Expense'
+    """, (current_user_id,))
     total_expenses = cursor.fetchone()[0]
 
     if total_expenses > monthly_budget:
@@ -318,10 +318,10 @@ def track_spending_by_category():
     cursor.execute("""
         SELECT category, COALESCE(SUM(amount), 0)
         FROM Transactions
-        WHERE user_id = current_user_id AND type = 'Expense'
+        WHERE user_id = ? AND type = 'Expense'
         GROUP BY category
         ORDER BY SUM(amount) DESC
-    """)
+    """, (current_user_id,))
     category_totals = cursor.fetchall()
 
     category_window = tk.Toplevel(root)
@@ -345,10 +345,10 @@ def generate_spending_charts():
     cursor.execute("""
         SELECT category, COALESCE(SUM(amount), 0)
         FROM Transactions
-        WHERE user_id = current_user_id AND type = 'Expense'
+        WHERE user_id = ? AND type = 'Expense'
         GROUP BY category
         ORDER BY SUM(amount) DESC
-    """)
+    """, (current_user_id,))
     category_totals = cursor.fetchall()
 
     if not category_totals:
@@ -380,22 +380,22 @@ def generate_financial_report():
     cursor.execute("""
         SELECT COALESCE(SUM(amount), 0)
         FROM Transactions
-        WHERE user_id = current_user_id AND type = 'Income'
-    """)
+        WHERE user_id = ? AND type = 'Income'
+    """, (current_user_id,))
     total_income = cursor.fetchone()[0]
 
     cursor.execute("""
         SELECT COALESCE(SUM(amount), 0)
         FROM Transactions
-        WHERE user_id = current_user_id AND type = 'Expense'
-    """)
+        WHERE user_id = ? AND type = 'Expense'
+    """, (current_user_id,))
     total_expenses = cursor.fetchone()[0]
 
     cursor.execute("""
         SELECT monthly_budget
         FROM Budget
-        WHERE user_id = current_user_id
-    """)
+        WHERE user_id = ?
+    """, (current_user_id,))
     budget_result = cursor.fetchone()
 
     monthly_budget = budget_result[0] if budget_result else 0

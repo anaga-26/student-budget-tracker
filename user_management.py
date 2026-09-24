@@ -85,6 +85,7 @@ def open_budget_management():
     import budget_management
 
     budget_management.current_user_id = logged_in_user_id
+    budget_management.launch_budget_management(logged_in_user_id, root)
 
 
 def show_dashboard():

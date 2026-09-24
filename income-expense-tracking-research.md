@@ -148,6 +148,74 @@ The system should support:
 - Deleting existing transactions
 - Viewing transaction history
 
+### Editable Transaction Information
+
+The Student Budget Tracker should allow users to edit the details of an existing transaction when incorrect information has been recorded.
+
+The editable transaction information should include:
+
+- Transaction amount
+- Transaction date
+- Transaction type
+- Expense category
+- Transaction description
+
+Allowing these details to be edited helps students correct mistakes and keep their income and expense records accurate.
+
+### Transaction Editing Process
+
+The Student Budget Tracker should provide a simple process for users to edit an existing transaction.
+
+The editing process should allow users to:
+
+1. Select the transaction they want to edit.
+2. View the existing transaction details.
+3. Modify the required information.
+4. Save the updated transaction.
+5. Ensure that the updated information replaces the previous information.
+
+The system should keep the transaction record updated so that users can maintain accurate income and expense records.
+
+### Transaction Deletion Process
+
+The Student Budget Tracker should allow users to remove an existing transaction when it is no longer required or was recorded by mistake.
+
+The deletion process should allow users to:
+
+1. Select the transaction they want to delete.
+2. View the transaction details before deleting it.
+3. Confirm that they want to delete the selected transaction.
+4. Remove the transaction from the transaction records.
+5. Update the transaction history after the deletion.
+
+The deletion process should help users keep their transaction records organised and accurate.
+
+### Delete Confirmation
+
+The Student Budget Tracker should ask users to confirm before deleting a transaction.
+
+The confirmation should clearly indicate that the selected transaction will be removed from the records.
+
+The system should provide options to:
+
+- Confirm the deletion and remove the transaction.
+- Cancel the deletion and keep the transaction.
+
+This confirmation step helps prevent users from accidentally deleting an important transaction.
+
+### Error Handling
+
+The Student Budget Tracker should provide appropriate feedback when an error occurs while editing or deleting a transaction.
+
+The system should handle situations such as:
+
+- The selected transaction cannot be found.
+- The user enters invalid transaction information.
+- The transaction cannot be updated successfully.
+- The transaction cannot be deleted successfully.
+
+The system should display a clear message to inform the user about the problem and allow them to try again.
+
 ## 6. Transaction Information Requirements
 
 Each transaction should contain important information needed for financial tracking.
@@ -159,6 +227,206 @@ The project specification identifies:
 - Transaction date
 
 The transaction type should identify whether the record is an income or an expense.
+
+### Transaction History Information
+
+The Student Budget Tracker should allow users to view their previous income and expense transactions in a transaction history.
+
+The transaction history should display important information for each transaction, including:
+
+- Transaction type
+- Transaction amount
+- Transaction date
+- Transaction category
+- Transaction description
+
+Displaying these details allows students to review their previous transactions and understand their income and spending records.
+
+### Transaction List Display
+
+The Student Budget Tracker should display recorded income and expense transactions in a clear and organised list.
+
+The transaction list should show important details for each transaction, including:
+
+- Transaction type
+- Transaction amount
+- Transaction date
+- Transaction category
+- Transaction description
+
+The transaction list should allow students to easily read and review their previous financial transactions.
+
+### Transaction Sorting
+
+The Student Budget Tracker should allow users to sort their transaction history to make it easier to review their financial records.
+
+The transaction history should provide sorting options such as:
+
+- Sort by transaction date
+- Sort by transaction amount
+- Sort by transaction type
+- Sort by category
+
+Sorting the transactions helps students organise their records and find relevant income or expense information more easily.
+
+### Transaction Filtering
+
+The Student Budget Tracker should allow users to filter their transaction history to view specific types of financial records.
+
+The transaction history should provide filtering options such as:
+
+- Filter by transaction type
+- Filter by category
+- Filter by date
+
+Filtering allows students to focus on specific income or expense transactions and makes it easier to review their financial records.
+
+### Transaction History Requirements
+
+The Student Budget Tracker should provide a clear and organised transaction history for users to review their financial records.
+
+The transaction history should allow users to:
+
+- View recorded income and expense transactions.
+- See important transaction details.
+- Sort transactions by relevant information.
+- Filter transactions based on specific criteria.
+- Review their previous financial activities easily.
+
+These features should make it easier for students to understand and manage their income and expenses.
+
+## Data Field Requirements
+
+### Transaction Type Field
+
+The Student Budget Tracker should include a transaction type field to identify whether a financial transaction is an income or an expense.
+
+The transaction type should contain one of the following values:
+
+- Income
+- Expense
+
+This field allows the system to distinguish between money received and money spent by the student.
+
+### Amount Field
+
+The Student Budget Tracker should include an amount field to record the monetary value of each transaction.
+
+The amount field should:
+
+- Store the amount of money involved in the transaction.
+- Use a numerical value.
+- Allow the system to calculate income and expense totals.
+
+This field is important for tracking the amount of money received or spent by the student.
+
+### Date Field
+
+The Student Budget Tracker should include a date field to record when each transaction occurs.
+
+The date field should store the date associated with the income or expense transaction.
+
+Recording the transaction date allows students to review their financial activities over time.
+
+### Category Field
+
+The Student Budget Tracker should include a category field to organise transactions.
+
+For expense transactions, categories may include:
+
+- Food
+- Transportation
+- Shopping
+- Entertainment
+- Daily Necessities
+
+The category field helps students understand where their money is being spent.
+
+### Description Field
+
+The Student Budget Tracker should include a description field to provide additional information about a transaction.
+
+The description should contain a short explanation of the income or expense.
+
+This field helps students identify the purpose or details of each transaction.
+
+### Finalize Income and Expense Data Fields
+
+The Income and Expense Tracking module should use the following data fields for each financial transaction:
+
+- Transaction type
+- Amount
+- Date
+- Category
+- Description
+
+These fields provide the basic information required to record, organise, view, edit, and manage income and expense transactions in the Student Budget Tracker.
+
+## Income and Expense Tracking Function Review
+
+### Review Income Recording Function
+
+The income recording function should allow students to record money received from different income sources.
+
+The function should collect the required income information, including:
+
+- Income source
+- Amount
+- Date
+- Description
+
+The recorded information should be stored as an income transaction.
+
+### Review Expense Recording Function
+
+The expense recording function should allow students to record money spent on different expenses.
+
+The function should collect the required expense information, including:
+
+- Amount
+- Date
+- Expense category
+- Description
+
+The recorded information should be stored as an expense transaction.
+
+### Review Transaction Editing and Deletion
+
+The transaction management functions should allow students to edit or delete existing transactions.
+
+The editing function should allow users to update incorrect transaction information.
+
+The deletion function should require confirmation before removing a transaction.
+
+The system should provide appropriate error messages when an editing or deletion operation cannot be completed successfully.
+
+### Review Transaction History
+
+The transaction history function should allow students to view their recorded income and expense transactions.
+
+The history should provide:
+
+- Transaction details
+- Transaction list display
+- Sorting options
+- Filtering options
+
+These features should help students review and understand their previous financial activities.
+
+### Finalize Income and Expense Tracking Functions
+
+The Income and Expense Tracking module should provide the following main functions:
+
+- Record income
+- Record expenses
+- View transaction history
+- Sort transactions
+- Filter transactions
+- Edit transactions
+- Delete transactions
+
+These functions should provide students with a simple and organised way to manage their income and expenses.
+
 
 ## 7. Data Storage Requirements
 

@@ -86,6 +86,9 @@ def add_income():
     category = income_category_var.get()
     transaction_date = income_date_entry.get().strip()
 
+    if category == "Other":
+        category = income_other_category_entry.get().strip()
+
     if not amount or not category or not transaction_date:
         messagebox.showwarning("Input Error", "Please fill in all income details.")
         return
@@ -112,6 +115,7 @@ def add_income():
     messagebox.showinfo("Income Added", f"Income of RM {amount:.2f} has been added.")
     income_amount_entry.delete(0, tk.END)
     income_category_var.set("Allowance")
+    income_other_category_entry.delete(0, tk.END)
     income_date_entry.delete(0, tk.END)
     income_date_entry.insert(0, current_date.today().isoformat())
 
@@ -420,55 +424,90 @@ def monthly_spending_summary():
         GROUP BY strftime('%Y-%m', date)
         ORDER BY month DESC
     """)
+
     monthly_totals = cursor.fetchall()
 
     summary_window = tk.Toplevel(root)
     summary_window.title("Monthly Spending Summary")
     summary_window.geometry("400x300")
 
-    text_box = tk.Text(summary_window, font=("Arial", 12))
-    text_box.pack(fill="both", expand=True, padx=10, pady=10)
+    text_box = tk.Text(
+        summary_window,
+        font=("Arial", 12)
+    )
+
+    text_box.pack(
+        fill="both",
+        expand=True,
+        padx=10,
+        pady=10
+    )
 
     if not monthly_totals:
-        text_box.insert(tk.END, "No expense records found.")
+        text_box.insert(
+            tk.END,
+            "No expense records found."
+        )
     else:
         for month, total in monthly_totals:
-            text_box.insert(tk.END, f"{month}: RM {total:.2f}\n")
+            text_box.insert(
+                tk.END,
+                f"{month}: RM {total:.2f}\n"
+            )
 
-    text_box.config(state="disabled")
 
 def add_expense():
     amount = expense_amount_entry.get().strip()
-    category = expense_category_var.get()
+    category = expense_category_var.get().strip()
     date = expense_date_entry.get().strip()
 
+    if category == "Other":
+        category = other_category_entry.get().strip()
+
     if not amount or not category or not date:
-        messagebox.showwarning("Input Error", "Please fill in all expense details.")
+        messagebox.showwarning(
+            "Input Error",
+            "Please fill in all expense details."
+        )
         return
 
     try:
         amount = float(amount)
     except ValueError:
-        messagebox.showerror("Invalid Amount", "Please enter a valid number.")
+        messagebox.showerror(
+            "Invalid Amount",
+            "Please enter a valid number."
+        )
         return
 
     if amount <= 0:
-        messagebox.showwarning("Invalid Amount", "Expense must be greater than RM 0.")
+        messagebox.showwarning(
+            "Invalid Amount",
+            "Expense must be greater than RM 0."
+        )
         return
 
     cursor.execute(
         """
-        INSERT INTO Transactions (user_id, amount, category, type, date)
+        INSERT INTO Transactions
+        (user_id, amount, category, type, date)
         VALUES (?, ?, ?, ?, ?)
         """,
-        (1, amount, category, "Expense", date),
+        (1, amount, category, "Expense", date)
     )
+
     conn.commit()
 
-    messagebox.showinfo("Expense Added", f"Expense of RM {amount:.2f} has been added.")
+    messagebox.showinfo(
+        "Expense Added",
+        f"Expense of RM {amount:.2f} has been added."
+    )
+
     expense_amount_entry.delete(0, tk.END)
     expense_category_var.set("Food")
+    other_category_entry.delete(0, tk.END)
     expense_date_entry.delete(0, tk.END)
+    expense_date_entry.insert(0, current_date.today().isoformat())
 
 
 # =========================================================
@@ -477,30 +516,26 @@ def add_expense():
 
 root = tk.Tk()
 root.title("Student Budget Tracker")
-root.geometry("1100x700")
+root.geometry("1180x720")
+root.minsize(1050, 650)
 root.configure(bg="#F4F7FB")
 
 root.option_add("*Button.Background", "#0F766E")
 root.option_add("*Button.Foreground", "white")
 root.option_add("*Button.ActiveBackground", "#115E59")
 root.option_add("*Button.ActiveForeground", "white")
-root.option_add("*Label.Background", "#F4F7FB")
-root.option_add("*Label.Foreground", "#1F2937")
-root.option_add("*LabelFrame.Background", "white")
-root.option_add("*LabelFrame.Foreground", "#0F172A")
 
-header = tk.Frame(root, bg="#0F172A", height=85)
+header = tk.Frame(root, bg="#0F172A", height=92)
 header.pack(fill="x")
 header.pack_propagate(False)
 
 tk.Label(
     header,
     text="Student Budget Tracker",
-    font=("Arial", 24, "bold"),
+    font=("Arial", 25, "bold"),
     bg="#0F172A",
     fg="white",
-).pack(pady=(14, 0))
-
+).pack(pady=(16, 0))
 tk.Label(
     header,
     text="Manage your money. Build better habits.",
@@ -508,138 +543,82 @@ tk.Label(
     bg="#0F172A",
     fg="#99F6E4",
 ).pack()
-main_frame = tk.Frame(root)
-main_frame.pack(fill="both", expand=True, padx=25, pady=10)
+
+main_frame = tk.Frame(root, bg="#F4F7FB")
+main_frame.pack(fill="both", expand=True, padx=22, pady=18)
+main_frame.columnconfigure((0, 1, 2), weight=1, uniform="columns")
+main_frame.rowconfigure(0, weight=1)
 
 budget_frame = tk.LabelFrame(
-    main_frame,
-    text="Budget and Income",
-    font=("Arial", 14, "bold"),
-    padx=15,
-    pady=10,
+    main_frame, text="Budget & Income", font=("Arial", 14, "bold"),
+    bg="white", fg="#0F172A", padx=16, pady=12,
 )
-budget_frame.grid(row=0, column=0, sticky="nsew", padx=10)
+budget_frame.grid(row=0, column=0, sticky="nsew", padx=8)
 
 expense_frame = tk.LabelFrame(
-    main_frame,
-    text="Expense",
-    font=("Arial", 14, "bold"),
-    padx=15,
-    pady=10,
+    main_frame, text="Expense", font=("Arial", 14, "bold"),
+    bg="white", fg="#0F172A", padx=16, pady=12,
 )
-expense_frame.grid(row=0, column=1, sticky="nsew", padx=10)
+expense_frame.grid(row=0, column=1, sticky="nsew", padx=8)
 
 report_frame = tk.LabelFrame(
-    main_frame,
-    text="Reports and Analytics",
-    font=("Arial", 14, "bold"),
-    padx=15,
-    pady=10,
+    main_frame, text="Reports & Analytics", font=("Arial", 14, "bold"),
+    bg="white", fg="#0F172A", padx=16, pady=12,
 )
-report_frame.grid(row=0, column=2, sticky="nsew", padx=10)
-
-main_frame.columnconfigure(0, weight=1)
-main_frame.columnconfigure(1, weight=1)
-main_frame.columnconfigure(2, weight=1)
+report_frame.grid(row=0, column=2, sticky="nsew", padx=8)
 
 # ---------------- MONTHLY BUDGET ----------------
 
-tk.Label(budget_frame, text="Set Monthly Budget", font=("Arial", 16, "bold")).pack(pady=5)
-tk.Label(budget_frame, text="Monthly Budget (RM):").pack()
-
-budget_entry = tk.Entry(budget_frame, width=25)
+tk.Label(budget_frame, text="Set Monthly Budget", bg="white", font=("Arial", 16, "bold")).pack(pady=(2, 5))
+tk.Label(budget_frame, text="Monthly Budget (RM):", bg="white").pack()
+budget_entry = tk.Entry(budget_frame, width=28)
 budget_entry.pack(pady=3)
-
-tk.Button(
-    budget_frame,
-    text="Save Budget",
-    command=set_monthly_budget,
-).pack(pady=4)
-
-tk.Button(
-    budget_frame,
-    text="Check Remaining Budget",
-    command=calculate_remaining_budget,
-).pack(pady=4)
+tk.Button(budget_frame, text="Save Budget", command=set_monthly_budget).pack(pady=4)
+tk.Button(budget_frame, text="Check Remaining Budget", command=calculate_remaining_budget).pack(pady=4)
 
 # ---------------- ADD INCOME ----------------
 
-tk.Label(budget_frame, text="Add Income", font=("Arial", 16, "bold")).pack(pady=(20, 5))
-tk.Label(budget_frame, text="Income Amount (RM):").pack()
-
-income_amount_entry = tk.Entry(budget_frame, width=25)
+tk.Label(budget_frame, text="Add Income", bg="white", font=("Arial", 16, "bold")).pack(pady=(22, 5))
+tk.Label(budget_frame, text="Income Amount (RM):", bg="white").pack()
+income_amount_entry = tk.Entry(budget_frame, width=28)
 income_amount_entry.pack(pady=3)
 
-tk.Label(budget_frame, text="Income Category:").pack()
+tk.Label(budget_frame, text="Income Category:", bg="white").pack()
 income_category_var = tk.StringVar(value="Allowance")
-
-
 tk.OptionMenu(
-    budget_frame,
-    income_category_var,
-    "Allowance",
-    "Parents",
-    "Freelance Work",
-    "Part-Time Job",
-    "Scholarship",
-    "Gift",
-    "Savings",
-    "Other",
+    budget_frame, income_category_var, "Allowance", "Parents", "Freelance Work",
+    "Part-Time Job", "Scholarship", "Gift", "Savings", "Other",
 ).pack(pady=3)
-
-tk.Label(budget_frame, text="Date (automatically set):").pack()
-
-income_date_entry = tk.Entry(budget_frame, width=25)
+tk.Label(budget_frame, text="If Other, specify:", bg="white").pack()
+income_other_category_entry = tk.Entry(budget_frame, width=28)
+income_other_category_entry.pack(pady=3)
+tk.Label(budget_frame, text="Date (automatically set):", bg="white").pack()
+income_date_entry = tk.Entry(budget_frame, width=28)
 income_date_entry.pack(pady=3)
 income_date_entry.insert(0, current_date.today().isoformat())
-
-tk.Button(
-    budget_frame,
-    text="Add Income",
-    command=add_income,
-).pack(pady=8)
+tk.Button(budget_frame, text="Add Income", command=add_income).pack(pady=8)
 
 # ---------------- ADD EXPENSE ----------------
 
-tk.Label(expense_frame, text="Add Expense", font=("Arial", 16, "bold")).pack(pady=5)
-tk.Label(expense_frame, text="Expense Amount (RM):").pack()
-
-expense_amount_entry = tk.Entry(expense_frame, width=25)
+tk.Label(expense_frame, text="Add Expense", bg="white", font=("Arial", 16, "bold")).pack(pady=(2, 5))
+tk.Label(expense_frame, text="Expense Amount (RM):", bg="white").pack()
+expense_amount_entry = tk.Entry(expense_frame, width=28)
 expense_amount_entry.pack(pady=3)
-
-tk.Label(expense_frame, text="Expense Category:").pack()
+tk.Label(expense_frame, text="Expense Category:", bg="white").pack()
 expense_category_var = tk.StringVar(value="Food")
-
 tk.OptionMenu(
-    expense_frame,
-    expense_category_var,
-    "Food",
-    "Transport",
-    "Shopping",
-    "Bills",
-    "Entertainment",
-    "Education",
-    "Health",
-    "Other",
+    expense_frame, expense_category_var, "Food", "Transport", "Shopping", "Bills",
+    "Entertainment", "Education", "Health", "Other",
 ).pack(pady=3)
-
-tk.Label(expense_frame, text="Date (YYYY-MM-DD):").pack()
-
-expense_date_entry = tk.Entry(expense_frame, width=25)
+tk.Label(expense_frame, text="If Other, specify:", bg="white").pack()
+other_category_entry = tk.Entry(expense_frame, width=28)
+other_category_entry.pack(pady=3)
+tk.Label(expense_frame, text="Date (automatically set):", bg="white").pack()
+expense_date_entry = tk.Entry(expense_frame, width=28)
 expense_date_entry.pack(pady=3)
 expense_date_entry.insert(0, current_date.today().isoformat())
-
-tk.Button(
-    expense_frame,
-    text="Add Expense",
-    command=add_expense,
-).pack(pady=8)
-
-tk.Button(
-    expense_frame,
-    text="Calculate Current Balance",
-    command=calculate_balance,
-).pack(pady=4)
+tk.Button(expense_frame, text="Add Expense", command=add_expense).pack(pady=8)
+tk.Button(expense_frame, text="Calculate Current Balance", command=calculate_balance).pack(pady=4)
 
 # ---------------- REPORTS ----------------
 
@@ -659,7 +638,7 @@ for button_text, button_command in buttons:
     tk.Button(
         report_frame,
         text=button_text,
-        width=28,
+        width=29,
         command=button_command,
     ).pack(pady=6)
 

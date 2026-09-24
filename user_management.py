@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import messagebox
 import sqlite3
 
+
 # Stores the ID of the currently logged-in user
 logged_in_user_id = None
 
@@ -80,6 +81,12 @@ def logout_user():
 
     show_login()
 
+def open_budget_management():
+    import budget_management
+
+    budget_management.current_user_id = logged_in_user_id
+
+
 def show_dashboard():
     # Remove everything from the current screen
     for widget in root.winfo_children():
@@ -111,6 +118,14 @@ def show_dashboard():
         command=show_edit_profile
     )
     edit_profile_button.pack(pady=10)
+
+    budget_button = tk.Button(
+        root,
+        text="Budget Management",
+        width=20,
+        command=open_budget_management
+    )
+    budget_button.pack(pady=10)
 
     logout_button = tk.Button(
         root,

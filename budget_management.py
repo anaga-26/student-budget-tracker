@@ -4,6 +4,8 @@ import tkinter as tk
 from tkinter import messagebox
 from datetime import date as current_date
 
+current_user_id = None
+
 
 # =========================================================
 # DATABASE
@@ -58,7 +60,7 @@ def set_monthly_budget():
         messagebox.showwarning("Invalid Budget", "Budget must be greater than RM 0.")
         return
 
-    user_id = 1
+    user_id = current_user_id
     cursor.execute("SELECT budget_id FROM Budget WHERE user_id = ?", (user_id,))
 
     if cursor.fetchone():
@@ -105,7 +107,7 @@ def add_income():
         INSERT INTO Transactions (user_id, amount, category, type, date)
         VALUES (?, ?, ?, ?, ?)
         """,
-        (1, amount, category, "Income", transaction_date),
+        (current_user_id, amount, category, "Income", transaction_date),
     )
     conn.commit()
 
@@ -126,7 +128,7 @@ def calculate_balance():
         FROM Transactions
         WHERE user_id = ? AND type = 'Income'
         """,
-        (1,),
+        (current_user_id,),
     )
     total_income = cursor.fetchone()[0]
 
@@ -136,7 +138,7 @@ def calculate_balance():
         FROM Transactions
         WHERE user_id = ? AND type = 'Expense'
         """,
-        (1,),
+        (current_user_id,),
     )
     total_expenses = cursor.fetchone()[0]
 
@@ -159,8 +161,8 @@ def calculate_remaining_budget():
     cursor.execute("""
         SELECT monthly_budget
         FROM Budget
-        WHERE user_id = 1
-    """)
+        WHERE user_id = current_user_id
+    """, (current_user_id,))
     budget_result = cursor.fetchone()
 
     if budget_result is None:
@@ -172,7 +174,7 @@ def calculate_remaining_budget():
     cursor.execute("""
         SELECT COALESCE(SUM(amount), 0)
         FROM Transactions
-        WHERE user_id = 1 AND type = 'Expense'
+        WHERE user_id = current_user_id AND type = 'Expense'
     """)
     total_expenses = cursor.fetchone()[0]
 
@@ -190,7 +192,7 @@ def display_total_income():
     cursor.execute("""
         SELECT COALESCE(SUM(amount), 0)
         FROM Transactions
-        WHERE user_id = 1 AND type = 'Income'
+        WHERE user_id = current_user_id AND type = 'Income'
     """)
 
     total_income = cursor.fetchone()[0]
@@ -206,7 +208,7 @@ def display_total_expenses():
     cursor.execute("""
         SELECT COALESCE(SUM(amount), 0)
         FROM Transactions
-        WHERE user_id = 1 AND type = 'Expense'
+        WHERE user_id = current_user_id AND type = 'Expense'
     """)
 
     total_expenses = cursor.fetchone()[0]
@@ -222,7 +224,7 @@ def view_transaction_history():
     cursor.execute("""
         SELECT type, amount, category, date
         FROM Transactions
-        WHERE user_id = 1
+        WHERE user_id = current_user_id
         ORDER BY date DESC
     """)
     transactions = cursor.fetchall()
@@ -251,14 +253,14 @@ def calculate_remaining_balance():
     cursor.execute("""
         SELECT COALESCE(SUM(amount), 0)
         FROM Transactions
-        WHERE user_id = 1 AND type = 'Income'
+        WHERE user_id = current_user_id AND type = 'Income'
     """)
     total_income = cursor.fetchone()[0]
 
     cursor.execute("""
         SELECT COALESCE(SUM(amount), 0)
         FROM Transactions
-        WHERE user_id = 1 AND type = 'Expense'
+        WHERE user_id = current_user_id AND type = 'Expense'
     """)
     total_expenses = cursor.fetchone()[0]
 
@@ -277,7 +279,7 @@ def display_budget_warning():
     cursor.execute("""
         SELECT monthly_budget
         FROM Budget
-        WHERE user_id = 1
+        WHERE user_id = current_user_id
     """)
     budget_result = cursor.fetchone()
 
@@ -293,7 +295,7 @@ def display_budget_warning():
     cursor.execute("""
         SELECT COALESCE(SUM(amount), 0)
         FROM Transactions
-        WHERE user_id = 1 AND type = 'Expense'
+        WHERE user_id = current_user_id AND type = 'Expense'
     """)
     total_expenses = cursor.fetchone()[0]
 
@@ -316,7 +318,7 @@ def track_spending_by_category():
     cursor.execute("""
         SELECT category, COALESCE(SUM(amount), 0)
         FROM Transactions
-        WHERE user_id = 1 AND type = 'Expense'
+        WHERE user_id = current_user_id AND type = 'Expense'
         GROUP BY category
         ORDER BY SUM(amount) DESC
     """)
@@ -343,7 +345,7 @@ def generate_spending_charts():
     cursor.execute("""
         SELECT category, COALESCE(SUM(amount), 0)
         FROM Transactions
-        WHERE user_id = 1 AND type = 'Expense'
+        WHERE user_id = current_user_id AND type = 'Expense'
         GROUP BY category
         ORDER BY SUM(amount) DESC
     """)
@@ -378,21 +380,21 @@ def generate_financial_report():
     cursor.execute("""
         SELECT COALESCE(SUM(amount), 0)
         FROM Transactions
-        WHERE user_id = 1 AND type = 'Income'
+        WHERE user_id = current_user_id AND type = 'Income'
     """)
     total_income = cursor.fetchone()[0]
 
     cursor.execute("""
         SELECT COALESCE(SUM(amount), 0)
         FROM Transactions
-        WHERE user_id = 1 AND type = 'Expense'
+        WHERE user_id = current_user_id AND type = 'Expense'
     """)
     total_expenses = cursor.fetchone()[0]
 
     cursor.execute("""
         SELECT monthly_budget
         FROM Budget
-        WHERE user_id = 1
+        WHERE user_id = current_user_id
     """)
     budget_result = cursor.fetchone()
 
@@ -410,42 +412,13 @@ def generate_financial_report():
     )
 
 def delete_transaction():
-def monthly_spending_summary():
     cursor = conn.cursor()
-
-    cursor.execute("""
-        SELECT strftime('%Y-%m', date) AS month,
-               COALESCE(SUM(amount), 0)
-        FROM Transactions
-        WHERE user_id = 1 AND type = 'Expense'
-        GROUP BY strftime('%Y-%m', date)
-        ORDER BY month DESC
-    """)
-    monthly_totals = cursor.fetchall()
-
-    summary_window = tk.Toplevel(root)
-    summary_window.title("Monthly Spending Summary")
-    summary_window.geometry("400x300")
-
-    text_box = tk.Text(summary_window, font=("Arial", 12))
-    text_box.pack(fill="both", expand=True, padx=10, pady=10)
-
-    if not monthly_totals:
-        text_box.insert(tk.END, "No expense records found.")
-    else:
-        for month, total in monthly_totals:
-            text_box.insert(tk.END, f"{month}: RM {total:.2f}\n")
-
-    text_box.config(state="disabled")
-def edit_transaction():
-    cursor = conn.cursor()
-
     cursor.execute("""
         SELECT transaction_id, type, amount, category, date
         FROM Transactions
-        WHERE user_id = 1
+        WHERE user_id = ?
         ORDER BY date DESC
-    """)
+    """, (current_user_id,))
     transactions = cursor.fetchall()
 
     if not transactions:
@@ -456,32 +429,15 @@ def edit_transaction():
     delete_window.title("Delete Transaction")
     delete_window.geometry("500x420")
 
-    tk.Label(
-        delete_window,
-        messagebox.showinfo("No Transactions", "There are no transactions to edit.")
-        return
-
-    edit_window = tk.Toplevel(root)
-    edit_window.title("Edit Transaction")
-    edit_window.geometry("500x500")
-
-    tk.Label(
-        edit_window,
-        text="Current Transactions",
-        font=("Arial", 14, "bold")
-    ).pack(pady=8)
-
+    tk.Label(delete_window, text="Current Transactions", font=("Arial", 14, "bold")).pack(pady=8)
     transaction_text = tk.Text(delete_window, height=12, font=("Arial", 10))
-    transaction_text = tk.Text(edit_window, height=10, font=("Arial", 10))
     transaction_text.pack(fill="x", padx=10)
 
     for transaction_id, transaction_type, amount, category, date in transactions:
         transaction_text.insert(
             tk.END,
-            f"ID {transaction_id} | {date} | {transaction_type} | "
-            f"{category} | RM {amount:.2f}\n"
+            f"ID {transaction_id} | {date} | {transaction_type} | {category} | RM {amount:.2f}\n"
         )
-
     transaction_text.config(state="disabled")
 
     tk.Label(delete_window, text="Transaction ID to delete:").pack(pady=(10, 0))
@@ -489,71 +445,19 @@ def edit_transaction():
     transaction_id_entry.pack()
 
     def confirm_delete():
-        transaction_id = transaction_id_entry.get().strip()
-
         try:
-            transaction_id = int(transaction_id)
+            transaction_id = int(transaction_id_entry.get().strip())
         except ValueError:
-            messagebox.showerror(
-                "Invalid ID",
-                "Please enter a whole-number transaction ID."
-            )
+            messagebox.showerror("Invalid ID", "Please enter a whole-number transaction ID.")
             return
 
-        confirmed = messagebox.askyesno(
-            "Confirm Delete",
-            "Are you sure you want to delete this transaction?"
+        if not messagebox.askyesno("Confirm Delete", "Are you sure you want to delete this transaction?"):
+            return
+
+        cursor.execute(
+            "DELETE FROM Transactions WHERE transaction_id = ? AND user_id = ?",
+            (transaction_id, current_user_id),
         )
-
-        if not confirmed:
-            return
-
-        cursor.execute("""
-            DELETE FROM Transactions
-            WHERE transaction_id = ? AND user_id = 1
-        """, (transaction_id,))
-    tk.Label(edit_window, text="Transaction ID to edit:").pack(pady=(10, 0))
-    transaction_id_entry = tk.Entry(edit_window, width=25)
-    transaction_id_entry.pack()
-
-    tk.Label(edit_window, text="New amount (RM):").pack(pady=(8, 0))
-    amount_entry = tk.Entry(edit_window, width=25)
-    amount_entry.pack()
-
-    tk.Label(edit_window, text="New category:").pack(pady=(8, 0))
-    category_entry = tk.Entry(edit_window, width=25)
-    category_entry.pack()
-
-    tk.Label(edit_window, text="New date (YYYY-MM-DD):").pack(pady=(8, 0))
-    date_entry = tk.Entry(edit_window, width=25)
-    date_entry.pack()
-
-    def save_transaction_changes():
-        transaction_id = transaction_id_entry.get().strip()
-        amount = amount_entry.get().strip()
-        category = category_entry.get().strip()
-        date = date_entry.get().strip()
-
-        if not transaction_id or not amount or not category or not date:
-            messagebox.showwarning("Input Error", "Please fill in every field.")
-            return
-
-        try:
-            transaction_id = int(transaction_id)
-            amount = float(amount)
-        except ValueError:
-            messagebox.showerror(
-                "Invalid Input",
-                "Transaction ID must be a whole number and amount must be a number."
-            )
-            return
-
-        cursor.execute("""
-            UPDATE Transactions
-            SET amount = ?, category = ?, date = ?
-            WHERE transaction_id = ? AND user_id = 1
-        """, (amount, category, date, transaction_id))
-
         if cursor.rowcount == 0:
             messagebox.showerror("Not Found", "Transaction ID was not found.")
             return
@@ -567,6 +471,74 @@ def edit_transaction():
         text="Delete Transaction",
         font=("Arial", 11, "bold"),
         command=confirm_delete,
+    ).pack(pady=15)
+
+
+def edit_transaction():
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT transaction_id, type, amount, category, date
+        FROM Transactions
+        WHERE user_id = ?
+        ORDER BY date DESC
+    """, (current_user_id,))
+    transactions = cursor.fetchall()
+
+    if not transactions:
+        messagebox.showinfo("No Transactions", "There are no transactions to edit.")
+        return
+
+    edit_window = tk.Toplevel(root)
+    edit_window.title("Edit Transaction")
+    edit_window.geometry("500x500")
+
+    tk.Label(edit_window, text="Current Transactions", font=("Arial", 14, "bold")).pack(pady=8)
+    transaction_text = tk.Text(edit_window, height=10, font=("Arial", 10))
+    transaction_text.pack(fill="x", padx=10)
+
+    for transaction_id, transaction_type, amount, category, date in transactions:
+        transaction_text.insert(
+            tk.END,
+            f"ID {transaction_id} | {date} | {transaction_type} | {category} | RM {amount:.2f}\n"
+        )
+    transaction_text.config(state="disabled")
+
+    tk.Label(edit_window, text="Transaction ID to edit:").pack(pady=(10, 0))
+    transaction_id_entry = tk.Entry(edit_window, width=25)
+    transaction_id_entry.pack()
+    tk.Label(edit_window, text="New amount (RM):").pack(pady=(8, 0))
+    amount_entry = tk.Entry(edit_window, width=25)
+    amount_entry.pack()
+    tk.Label(edit_window, text="New category:").pack(pady=(8, 0))
+    category_entry = tk.Entry(edit_window, width=25)
+    category_entry.pack()
+    tk.Label(edit_window, text="New date (YYYY-MM-DD):").pack(pady=(8, 0))
+    date_entry = tk.Entry(edit_window, width=25)
+    date_entry.pack()
+
+    def save_transaction_changes():
+        transaction_id = transaction_id_entry.get().strip()
+        amount = amount_entry.get().strip()
+        category = category_entry.get().strip()
+        date = date_entry.get().strip()
+        if not transaction_id or not amount or not category or not date:
+            messagebox.showwarning("Input Error", "Please fill in every field.")
+            return
+        try:
+            transaction_id = int(transaction_id)
+            amount = float(amount)
+        except ValueError:
+            messagebox.showerror("Invalid Input", "Transaction ID must be a whole number and amount must be a number.")
+            return
+        cursor.execute("""
+            UPDATE Transactions
+            SET amount = ?, category = ?, date = ?
+            WHERE transaction_id = ? AND user_id = ?
+        """, (amount, category, date, transaction_id, current_user_id))
+        if cursor.rowcount == 0:
+            messagebox.showerror("Not Found", "Transaction ID was not found.")
+            return
+        conn.commit()
         messagebox.showinfo("Success", "Transaction updated successfully.")
         edit_window.destroy()
 
@@ -576,6 +548,30 @@ def edit_transaction():
         font=("Arial", 11, "bold"),
         command=save_transaction_changes,
     ).pack(pady=15)
+
+
+def monthly_spending_summary():
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT strftime('%Y-%m', date) AS month, COALESCE(SUM(amount), 0)
+        FROM Transactions
+        WHERE user_id = ? AND type = 'Expense'
+        GROUP BY strftime('%Y-%m', date)
+        ORDER BY month DESC
+    """, (current_user_id,))
+    monthly_totals = cursor.fetchall()
+
+    summary_window = tk.Toplevel(root)
+    summary_window.title("Monthly Spending Summary")
+    summary_window.geometry("400x300")
+    text_box = tk.Text(summary_window, font=("Arial", 12))
+    text_box.pack(fill="both", expand=True, padx=10, pady=10)
+    if not monthly_totals:
+        text_box.insert(tk.END, "No expense records found.")
+    else:
+        for month, total in monthly_totals:
+            text_box.insert(tk.END, f"{month}: RM {total:.2f}\n")
+    text_box.config(state="disabled")
 
 def add_expense():
     amount = expense_amount_entry.get().strip()
@@ -601,7 +597,7 @@ def add_expense():
         INSERT INTO Transactions (user_id, amount, category, type, date)
         VALUES (?, ?, ?, ?, ?)
         """,
-        (1, amount, category, "Expense", date),
+        (current_user_id, amount, category, "Expense", date),
     )
     conn.commit()
 
@@ -615,219 +611,220 @@ def add_expense():
 # GUI
 # =========================================================
 
-root = tk.Tk()
-root.title("Student Budget Tracker")
-root.geometry("1100x700")
-root.configure(bg="#F4F7FB")
+def launch_budget_management(user_id, parent):
+    global root, budget_entry, income_amount_entry, income_category_var, income_date_entry, expense_amount_entry, expense_category_var, expense_date_entry
+    global current_user_id
+    current_user_id = user_id
 
-root.option_add("*Button.Background", "#0F766E")
-root.option_add("*Button.Foreground", "white")
-root.option_add("*Button.ActiveBackground", "#115E59")
-root.option_add("*Button.ActiveForeground", "white")
-root.option_add("*Label.Background", "#F4F7FB")
-root.option_add("*Label.Foreground", "#1F2937")
-root.option_add("*LabelFrame.Background", "white")
-root.option_add("*LabelFrame.Foreground", "#0F172A")
+    root = tk.Toplevel(parent)
+    root.title("Student Budget Tracker")
+    root.geometry("1100x700")
+    root.configure(bg="#F4F7FB")
 
-header = tk.Frame(root, bg="#0F172A", height=85)
-header.pack(fill="x")
-header.pack_propagate(False)
+    root.option_add("*Button.Background", "#0F766E")
+    root.option_add("*Button.Foreground", "white")
+    root.option_add("*Button.ActiveBackground", "#115E59")
+    root.option_add("*Button.ActiveForeground", "white")
+    root.option_add("*Label.Background", "#F4F7FB")
+    root.option_add("*Label.Foreground", "#1F2937")
+    root.option_add("*LabelFrame.Background", "white")
+    root.option_add("*LabelFrame.Foreground", "#0F172A")
 
-tk.Label(
-    header,
-    text="Student Budget Tracker",
-    font=("Arial", 24, "bold"),
-    bg="#0F172A",
-    fg="white",
-).pack(pady=(14, 0))
+    header = tk.Frame(root, bg="#0F172A", height=85)
+    header.pack(fill="x")
+    header.pack_propagate(False)
 
-tk.Label(
-    header,
-    text="Manage your money. Build better habits.",
-    font=("Arial", 11),
-    bg="#0F172A",
-    fg="#99F6E4",
-).pack()
-main_frame = tk.Frame(root)
-main_frame.pack(fill="both", expand=True, padx=25, pady=10)
+    tk.Label(
+        header,
+        text="Student Budget Tracker",
+        font=("Arial", 24, "bold"),
+        bg="#0F172A",
+        fg="white",
+    ).pack(pady=(14, 0))
 
-budget_frame = tk.LabelFrame(
-    main_frame,
-    text="Budget and Income",
-    font=("Arial", 14, "bold"),
-    padx=15,
-    pady=10,
-)
-budget_frame.grid(row=0, column=0, sticky="nsew", padx=10)
+    tk.Label(
+        header,
+        text="Manage your money. Build better habits.",
+        font=("Arial", 11),
+        bg="#0F172A",
+        fg="#99F6E4",
+    ).pack()
+    main_frame = tk.Frame(root)
+    main_frame.pack(fill="both", expand=True, padx=25, pady=10)
 
-expense_frame = tk.LabelFrame(
-    main_frame,
-    text="Expense",
-    font=("Arial", 14, "bold"),
-    padx=15,
-    pady=10,
-)
-expense_frame.grid(row=0, column=1, sticky="nsew", padx=10)
+    budget_frame = tk.LabelFrame(
+        main_frame,
+        text="Budget and Income",
+        font=("Arial", 14, "bold"),
+        padx=15,
+        pady=10,
+    )
+    budget_frame.grid(row=0, column=0, sticky="nsew", padx=10)
 
-report_frame = tk.LabelFrame(
-    main_frame,
-    text="Reports and Analytics",
-    font=("Arial", 14, "bold"),
-    padx=15,
-    pady=10,
-)
-report_frame.grid(row=0, column=2, sticky="nsew", padx=10)
+    expense_frame = tk.LabelFrame(
+        main_frame,
+        text="Expense",
+        font=("Arial", 14, "bold"),
+        padx=15,
+        pady=10,
+    )
+    expense_frame.grid(row=0, column=1, sticky="nsew", padx=10)
 
-main_frame.columnconfigure(0, weight=1)
-main_frame.columnconfigure(1, weight=1)
-main_frame.columnconfigure(2, weight=1)
+    report_frame = tk.LabelFrame(
+        main_frame,
+        text="Reports and Analytics",
+        font=("Arial", 14, "bold"),
+        padx=15,
+        pady=10,
+    )
+    report_frame.grid(row=0, column=2, sticky="nsew", padx=10)
 
-# ---------------- MONTHLY BUDGET ----------------
+    main_frame.columnconfigure(0, weight=1)
+    main_frame.columnconfigure(1, weight=1)
+    main_frame.columnconfigure(2, weight=1)
 
-tk.Label(budget_frame, text="Set Monthly Budget", font=("Arial", 16, "bold")).pack(pady=5)
-tk.Label(budget_frame, text="Monthly Budget (RM):").pack()
+    # ---------------- MONTHLY BUDGET ----------------
 
-budget_entry = tk.Entry(budget_frame, width=25)
-budget_entry.pack(pady=3)
+    tk.Label(budget_frame, text="Set Monthly Budget", font=("Arial", 16, "bold")).pack(pady=5)
+    tk.Label(budget_frame, text="Monthly Budget (RM):").pack()
 
-tk.Button(
-    budget_frame,
-    text="Save Budget",
-    command=set_monthly_budget,
-).pack(pady=4)
+    budget_entry = tk.Entry(budget_frame, width=25)
+    budget_entry.pack(pady=3)
 
-tk.Button(
-    budget_frame,
-    text="Check Remaining Budget",
-    command=calculate_remaining_budget,
-).pack(pady=4)
+    tk.Button(
+        budget_frame,
+        text="Save Budget",
+        command=set_monthly_budget,
+    ).pack(pady=4)
 
-# ---------------- ADD INCOME ----------------
+    tk.Button(
+        budget_frame,
+        text="Check Remaining Budget",
+        command=calculate_remaining_budget,
+    ).pack(pady=4)
 
-tk.Label(budget_frame, text="Add Income", font=("Arial", 16, "bold")).pack(pady=(20, 5))
-tk.Label(budget_frame, text="Income Amount (RM):").pack()
+    # ---------------- ADD INCOME ----------------
 
-income_amount_entry = tk.Entry(budget_frame, width=25)
-income_amount_entry.pack(pady=3)
+    tk.Label(budget_frame, text="Add Income", font=("Arial", 16, "bold")).pack(pady=(20, 5))
+    tk.Label(budget_frame, text="Income Amount (RM):").pack()
 
-tk.Label(budget_frame, text="Income Category:").pack()
-income_category_var = tk.StringVar(value="Allowance")
+    income_amount_entry = tk.Entry(budget_frame, width=25)
+    income_amount_entry.pack(pady=3)
+
+    tk.Label(budget_frame, text="Income Category:").pack()
+    income_category_var = tk.StringVar(value="Allowance")
 
 
-tk.OptionMenu(
-    budget_frame,
-    income_category_var,
-    "Allowance",
-    "Parents",
-    "Freelance Work",
-    "Part-Time Job",
-    "Scholarship",
-    "Gift",
-    "Savings",
-    "Other",
-).pack(pady=3)
+    tk.OptionMenu(
+        budget_frame,
+        income_category_var,
+        "Allowance",
+        "Parents",
+        "Freelance Work",
+        "Part-Time Job",
+        "Scholarship",
+        "Gift",
+        "Savings",
+        "Other",
+    ).pack(pady=3)
 
-tk.Label(budget_frame, text="Date (automatically set):").pack()
+    tk.Label(budget_frame, text="Date (automatically set):").pack()
 
-income_date_entry = tk.Entry(budget_frame, width=25)
-income_date_entry.pack(pady=3)
-income_date_entry.insert(0, current_date.today().isoformat())
+    income_date_entry = tk.Entry(budget_frame, width=25)
+    income_date_entry.pack(pady=3)
+    income_date_entry.insert(0, current_date.today().isoformat())
 
-tk.Button(
-    budget_frame,
-    text="Add Income",
-    command=add_income,
-).pack(pady=8)
+    tk.Button(
+        budget_frame,
+        text="Add Income",
+        command=add_income,
+    ).pack(pady=8)
 
-tk.Button(
-    root,
-    text="Generate Spending Charts",
-    font=("Arial", 11, "bold"),
-    command=generate_spending_charts,
-).pack(pady=4)
-tk.Button(
-    root,
-    text="Generate Financial Report",
-    font=("Arial", 11, "bold"),
-    command=generate_financial_report,
-).pack(pady=4)
-tk.Button(
-    root,
-    text="Delete Transaction",
-    font=("Arial", 11, "bold"),
-    command=delete_transaction,
-    text="Edit Transaction",
-    font=("Arial", 11, "bold"),
-    command=edit_transaction,
-).pack(pady=4)
-# ---------------- ADD EXPENSE ----------------
-
-tk.Label(expense_frame, text="Add Expense", font=("Arial", 16, "bold")).pack(pady=5)
-tk.Label(expense_frame, text="Expense Amount (RM):").pack()
-
-expense_amount_entry = tk.Entry(expense_frame, width=25)
-expense_amount_entry.pack(pady=3)
-
-tk.Label(expense_frame, text="Expense Category:").pack()
-expense_category_var = tk.StringVar(value="Food")
-
-tk.OptionMenu(
-    expense_frame,
-    expense_category_var,
-    "Food",
-    "Transport",
-    "Shopping",
-    "Bills",
-    "Entertainment",
-    "Education",
-    "Health",
-    "Other",
-).pack(pady=3)
-
-tk.Label(expense_frame, text="Date (YYYY-MM-DD):").pack()
-).pack(pady=2)
-
-expense_date_entry = tk.Entry(expense_frame, width=25)
-expense_date_entry.pack(pady=3)
-expense_date_entry.insert(0, current_date.today().isoformat())
-
-tk.Button(
-    expense_frame,
-    text="Add Expense",
-    command=add_expense,
-).pack(pady=8)
-
-tk.Button(
-    expense_frame,
-    text="Calculate Current Balance",
-    command=calculate_balance,
-).pack(pady=4)
-
-# ---------------- REPORTS ----------------
-
-buttons = [
-    ("Display Total Income", display_total_income),
-    ("Display Total Expenses", display_total_expenses),
-    ("View Transaction History", view_transaction_history),
-    ("Check Remaining Balance", calculate_remaining_balance),
-    ("Display Budget Warning", display_budget_warning),
-    ("Track Spending by Category", track_spending_by_category),
-    ("Generate Spending Charts", generate_spending_charts),
-    ("Generate Financial Report", generate_financial_report),
-    ("Monthly Spending Summary", monthly_spending_summary),
-]
-
-for button_text, button_command in buttons:
     tk.Button(
         report_frame,
-        text=button_text,
-        width=28,
-        command=button_command,
-    ).pack(pady=6)
+        text="Generate Spending Charts",
+        font=("Arial", 11, "bold"),
+        command=generate_spending_charts,
+    ).pack(pady=4)
+    tk.Button(
+        report_frame,
+        text="Generate Financial Report",
+        font=("Arial", 11, "bold"),
+        command=generate_financial_report,
+    ).pack(pady=4)
+    tk.Button(
+        report_frame,
+        text="Delete Transaction",
+        font=("Arial", 11, "bold"),
+        command=delete_transaction,
+    ).pack(pady=4)
+    tk.Button(
+        report_frame,
+        text="Edit Transaction",
+        font=("Arial", 11, "bold"),
+        command=edit_transaction,
+    ).pack(pady=4)
+    # ---------------- ADD EXPENSE ----------------
 
-# =========================================================
-# START APPLICATION
-# =========================================================
+    tk.Label(expense_frame, text="Add Expense", font=("Arial", 16, "bold")).pack(pady=5)
+    tk.Label(expense_frame, text="Expense Amount (RM):").pack()
 
-root.mainloop()
-conn.close()
+    expense_amount_entry = tk.Entry(expense_frame, width=25)
+    expense_amount_entry.pack(pady=3)
+
+    tk.Label(expense_frame, text="Expense Category:").pack()
+    expense_category_var = tk.StringVar(value="Food")
+
+    tk.OptionMenu(
+        expense_frame,
+        expense_category_var,
+        "Food",
+        "Transport",
+        "Shopping",
+        "Bills",
+        "Entertainment",
+        "Education",
+        "Health",
+        "Other",
+    ).pack(pady=3)
+
+    tk.Label(expense_frame, text="Date (YYYY-MM-DD):").pack(pady=2)
+
+    expense_date_entry = tk.Entry(expense_frame, width=25)
+    expense_date_entry.pack(pady=3)
+    expense_date_entry.insert(0, current_date.today().isoformat())
+
+    tk.Button(
+        expense_frame,
+        text="Add Expense",
+        command=add_expense,
+    ).pack(pady=8)
+
+    tk.Button(
+        expense_frame,
+        text="Calculate Current Balance",
+        command=calculate_balance,
+    ).pack(pady=4)
+
+    # ---------------- REPORTS ----------------
+
+    buttons = [
+        ("Display Total Income", display_total_income),
+        ("Display Total Expenses", display_total_expenses),
+        ("View Transaction History", view_transaction_history),
+        ("Check Remaining Balance", calculate_remaining_balance),
+        ("Display Budget Warning", display_budget_warning),
+        ("Track Spending by Category", track_spending_by_category),
+        ("Generate Spending Charts", generate_spending_charts),
+        ("Generate Financial Report", generate_financial_report),
+        ("Monthly Spending Summary", monthly_spending_summary),
+    ]
+
+    for button_text, button_command in buttons:
+        tk.Button(
+            report_frame,
+            text=button_text,
+            width=28,
+            command=button_command,
+        ).pack(pady=6)
+

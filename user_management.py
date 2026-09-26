@@ -280,93 +280,524 @@ def login_user():
     else:
         messagebox.showerror("Login failed", "Incorrect username or password.")
 
-
 def show_login():
     global login_username, login_password
 
     clear_root()
-    root.geometry("900x600")
-    root.resizable(False, False)
 
-    outer = tk.Frame(root, bg=BG)
-    outer.pack(fill="both", expand=True)
+    # =====================================================
+    # WINDOW
+    # =====================================================
 
-    left = tk.Frame(outer, bg=NAVY, width=370)
-    left.pack(side="left", fill="y")
+    root.geometry("1100x700")
+    root.minsize(1000, 650)
+    root.resizable(True, True)
+
+    # =====================================================
+    # COLOUR PALETTE
+    # =====================================================
+
+    login_bg = "#F4F8FA"
+    login_navy = "#102A43"
+    login_navy_light = "#173E5F"
+    login_teal = "#19A999"
+    login_teal_dark = "#128477"
+    login_text = "#19324D"
+    login_muted = "#7A8A9A"
+    white = "#FFFFFF"
+    input_bg = "#F8FAFC"
+    border = "#DCE6ED"
+
+    # =====================================================
+    # MAIN CONTAINER
+    # =====================================================
+
+    outer = tk.Frame(
+        root,
+        bg=login_bg
+    )
+    outer.pack(
+        fill="both",
+        expand=True
+    )
+
+    # =====================================================
+    # LEFT BRANDING PANEL
+    # =====================================================
+
+    left = tk.Frame(
+        outer,
+        bg=login_navy,
+        width=500
+    )
+
+    left.pack(
+        side="left",
+        fill="y"
+    )
+
     left.pack_propagate(False)
 
-    tk.Label(
-        left, text="Student\nBudget Tracker",
-        bg=NAVY, fg=WHITE,
-        font=("Arial", 27, "bold"),
-        justify="left"
-    ).pack(anchor="w", padx=42, pady=(70, 12))
+    # =====================================================
+    # SUBTLE DECORATION
+    # =====================================================
 
-    tk.Label(
-        left, text="Manage your money.\nBuild better habits.",
-        bg=NAVY, fg="#61D9D0",
-        font=("Arial", 12),
-        justify="left"
-    ).pack(anchor="w", padx=42)
-
-    # Simple hand-built visual instead of an external image.
-    visual = tk.Frame(left, bg=NAVY)
-    visual.pack(fill="both", expand=True, padx=42, pady=30)
-
-    canvas = tk.Canvas(visual, bg=NAVY, highlightthickness=0)
-    canvas.pack(fill="both", expand=True)
-    canvas.create_oval(30, 80, 250, 300, fill=NAVY_2, outline="")
-    canvas.create_rectangle(95, 235, 285, 330, fill="#244D75", outline="")
-    canvas.create_text(
-        155, 170, text="RM", fill="#61D9D0",
-        font=("Arial", 40, "bold")
-    )
-    canvas.create_text(
-        155, 355, text="Plan • Track • Save",
-        fill=WHITE, font=("Arial", 11, "bold")
+    decoration = tk.Canvas(
+        left,
+        bg=login_navy,
+        highlightthickness=0
     )
 
-    right = tk.Frame(outer, bg=WHITE)
-    right.pack(side="left", fill="both", expand=True)
+    decoration.place(
+        relx=0,
+        rely=0,
+        relwidth=1,
+        relheight=1
+    )
+
+    # Soft decorative shapes
+    decoration.create_oval(
+        -180, 500, 250, 930,
+        fill="#153957",
+        outline=""
+    )
+
+    decoration.create_oval(
+        300, -150, 570, 120,
+        fill="#153957",
+        outline=""
+    )
+
+    decoration.create_oval(
+        315, 500, 540, 725,
+        fill="#174568",
+        outline=""
+    )
+
+    # =====================================================
+    # BRAND CONTENT
+    # =====================================================
+
+    brand = tk.Frame(
+        left,
+        bg=login_navy
+    )
+
+    brand.pack(
+        fill="x",
+        padx=45,
+        pady=(70, 0)
+    )
+
+    # Main application name
+    tk.Label(
+        brand,
+        text="STUDENT BUDGET TRACKER",
+        bg=login_navy,
+        fg=white,
+        font=("Arial", 19, "bold"),
+        anchor="w"
+    ).pack(
+        anchor="w"
+    )
+
+    # Accent line
+    tk.Frame(
+        brand,
+        bg=login_teal,
+        height=4,
+        width=75
+    ).pack(
+        anchor="w",
+        pady=(15, 18)
+    )
+
+    # Short description
+    tk.Label(
+        brand,
+        text="A simple and organised way\nto manage your student finances.",
+        bg=login_navy,
+        fg="#B9C9D9",
+        font=("Arial", 11),
+        justify="left",
+        anchor="w"
+    ).pack(
+        anchor="w"
+    )
+
+    # =====================================================
+    # SIMPLE ILLUSTRATION / MONEY VISUAL
+    # =====================================================
+
+    visual = tk.Frame(
+        left,
+        bg=login_navy
+    )
+
+    visual.pack(
+        fill="both",
+        expand=True,
+        padx=55,
+        pady=(40, 55)
+    )
+
+    canvas = tk.Canvas(
+        visual,
+        bg=login_navy,
+        highlightthickness=0
+    )
+
+    canvas.pack(
+        fill="both",
+        expand=True
+    )
+
+    # Main soft circle
+    canvas.create_oval(
+        55, 75,
+        285, 305,
+        fill="#173E5F",
+        outline=""
+    )
+
+    # Small decorative circle
+    canvas.create_oval(
+        220, 185,
+        330, 295,
+        fill="#1B4B70",
+        outline=""
+    )
+    
+    canvas.create_rectangle(
+        100, 145,
+        275, 255,
+        fill="#FFFFFF",
+        outline=""
+    )
+
+    canvas.create_rectangle(
+        95, 160,
+        290, 195,
+        fill="#19A999",
+        outline=""
+    )
+
+    # Card details
+    canvas.create_oval(
+        115, 215,
+        140, 240,
+        fill="#D9F5F1",
+        outline=""
+    )
+
+    canvas.create_rectangle(
+        155, 215,
+        235, 222,
+        fill="#D8E5EC",
+        outline=""
+    )
+
+    canvas.create_rectangle(
+        155, 232,
+        210, 239,
+        fill="#D8E5EC",
+        outline=""
+    )
+
+    # Decorative coins
+    canvas.create_oval(
+        260, 120,
+        305, 165,
+        fill="#66DED3",
+        outline=""
+    )
+
+    canvas.create_text(
+        282,
+        142,
+        text="RM",
+        fill=login_navy,
+        font=("Arial", 11, "bold")
+    )
+
+    # Bottom tagline
+    canvas.create_text(
+        170,
+        350,
+        text="Plan. Track. Save.",
+        fill=white,
+        font=("Arial", 17, "bold")
+    )
+
+    canvas.create_text(
+        170,
+        378,
+        text="Built for students who want\nbetter control of their money.",
+        fill="#9FB5C8",
+        font=("Arial", 9),
+        justify="center"
+    )
+
+    # =====================================================
+    # RIGHT SIDE
+    # =====================================================
+
+    right = tk.Frame(
+        outer,
+        bg=login_bg
+    )
+
+    right.pack(
+        side="left",
+        fill="both",
+        expand=True
+    )
+
+    # =====================================================
+    # LOGIN CARD
+    # =====================================================
+
+    login_card_frame = tk.Frame(
+        right,
+        bg=white,
+        highlightbackground=border,
+        highlightthickness=1
+    )
+
+    login_card_frame.place(
+        relx=0.5,
+        rely=0.5,
+        anchor="center",
+        width=500,
+        height=555
+    )
+
+    # =====================================================
+    # HEADER
+    # =====================================================
 
     tk.Label(
-        right, text="Welcome Back",
-        bg=WHITE, fg=NAVY,
-        font=("Arial", 25, "bold")
-    ).pack(anchor="w", padx=52, pady=(72, 5))
+        login_card_frame,
+        text="Welcome",
+        bg=white,
+        fg=login_text,
+        font=("Arial", 27, "bold")
+    ).pack(
+        anchor="w",
+        padx=55,
+        pady=(38, 5)
+    )
 
     tk.Label(
-        right, text="Sign in to manage your student finances.",
-        bg=WHITE, fg=MUTED, font=("Arial", 11)
-    ).pack(anchor="w", padx=52, pady=(0, 28))
+        login_card_frame,
+        text="Sign in to continue to your dashboard.",
+        bg=white,
+        fg=login_muted,
+        font=("Arial", 10)
+    ).pack(
+        anchor="w",
+        padx=55
+    )
 
-    form = tk.Frame(right, bg=WHITE)
-    form.pack(fill="x", padx=52)
+    # =====================================================
+    # FORM
+    # =====================================================
+
+    form = tk.Frame(
+        login_card_frame,
+        bg=white
+    )
+
+    form.pack(
+        fill="x",
+        padx=55,
+        pady=(26, 0)
+    )
 
     login_username = tk.StringVar()
     login_password = tk.StringVar()
 
-    w, _ = field(form, "Username", login_username)
-    w.pack(fill="x", pady=7)
-
-    w, _ = field(form, "Password", login_password, show="*")
-    w.pack(fill="x", pady=7)
-
-    make_button(
-        right, "Login", login_user, primary=True
-    ).pack(fill="x", padx=52, pady=(22, 12), ipady=2)
-
-    tk.Frame(right, bg=BORDER, height=1).pack(fill="x", padx=52, pady=10)
-
-    make_button(
-        right, "Create New Account", show_register
-    ).pack(fill="x", padx=52, pady=8)
+    # -----------------------------------------------------
+    # USERNAME
+    # -----------------------------------------------------
 
     tk.Label(
-        right, text="A simple way to stay on top of your money.",
-        bg=WHITE, fg=MUTED, font=("Arial", 9)
-    ).pack(pady=(25, 0))
+        form,
+        text="Username",
+        bg=white,
+        fg=login_text,
+        font=("Arial", 9, "bold")
+    ).pack(
+        anchor="w",
+        pady=(0, 8)
+    )
 
+    username_entry = tk.Entry(
+        form,
+        textvariable=login_username,
+        font=("Arial", 11),
+        bg=input_bg,
+        fg=login_text,
+        relief="flat",
+        bd=0,
+        highlightthickness=1,
+        highlightbackground=border,
+        highlightcolor=login_teal
+    )
+
+    username_entry.pack(
+        fill="x",
+        ipady=11
+    )
+
+    # -----------------------------------------------------
+    # PASSWORD
+    # -----------------------------------------------------
+
+    tk.Label(
+        form,
+        text="Password",
+        bg=white,
+        fg=login_text,
+        font=("Arial", 9, "bold")
+    ).pack(
+        anchor="w",
+        pady=(20, 8)
+    )
+
+    password_entry = tk.Entry(
+        form,
+        textvariable=login_password,
+        font=("Arial", 11),
+        bg=input_bg,
+        fg=login_text,
+        relief="flat",
+        bd=0,
+        show="*",
+        highlightthickness=1,
+        highlightbackground=border,
+        highlightcolor=login_teal
+    )
+
+    password_entry.pack(
+        fill="x",
+        ipady=11
+    )
+
+    # =====================================================
+    # LOGIN BUTTON
+    # =====================================================
+
+    login_button = tk.Button(
+        login_card_frame,
+        text="Sign In",
+        command=login_user,
+        bg=login_teal,
+        fg=white,
+        activebackground=login_teal_dark,
+        activeforeground=white,
+        relief="flat",
+        bd=0,
+        cursor="hand2",
+        font=("Arial", 10, "bold")
+    )
+
+    login_button.pack(
+        fill="x",
+        padx=48,
+        pady=(20, 15),
+        ipady=10
+    )
+
+    # =====================================================
+    # DIVIDER
+    # =====================================================
+
+    divider_area = tk.Frame(
+        login_card_frame,
+        bg=white
+    )
+
+    divider_area.pack(
+        fill="x",
+        padx=55,
+        pady=(0, 17)
+    )
+
+    tk.Frame(
+        divider_area,
+        bg=border,
+        height=1
+    ).pack(
+        side="left",
+        fill="x",
+        expand=True
+    )
+
+    tk.Label(
+        divider_area,
+        text="  or  ",
+        bg=white,
+        fg=login_muted,
+        font=("Arial", 8)
+    ).pack(
+        side="left"
+    )
+
+    tk.Frame(
+        divider_area,
+        bg=border,
+        height=1
+    ).pack(
+        side="left",
+        fill="x",
+        expand=True
+    )
+
+    # =====================================================
+    # CREATE ACCOUNT
+    # =====================================================
+
+    register_button = tk.Button(
+        login_card_frame,
+        text="Create New Account",
+        command=show_register,
+        bg=white,
+        fg=login_teal_dark,
+        activebackground="#EAF8F6",
+        activeforeground=login_teal_dark,
+        relief="solid",
+        bd=1,
+        cursor="hand2",
+        font=("Arial", 9, "bold")
+    )
+
+    register_button.pack(
+        fill="x",
+        padx=55,
+        pady=(0, 10),
+        ipady=9
+    )
+
+    # =====================================================
+    # FOOTER
+    # =====================================================
+
+    tk.Label(
+        login_card_frame,
+        text="Manage your money. Build better habits.",
+        bg=white,
+        fg=login_muted,
+        font=("Arial", 8)
+    ).pack(
+        pady=(8, 0)
+    )
+
+    # =====================================================
+    # START WITH USERNAME FIELD
+    # =====================================================
+
+    username_entry.focus_set()
 
 def show_register():
     global register_username, register_password, register_confirm

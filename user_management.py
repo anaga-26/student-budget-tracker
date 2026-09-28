@@ -803,68 +803,541 @@ def show_register():
     global register_username, register_password, register_confirm
 
     clear_root()
-    root.geometry("900x600")
-    root.resizable(False, False)
 
-    outer = tk.Frame(root, bg=BG)
-    outer.pack(fill="both", expand=True)
+    # =====================================================
+    # WINDOW
+    # =====================================================
 
-    left = tk.Frame(outer, bg=NAVY, width=370)
-    left.pack(side="left", fill="y")
+    root.geometry("1100x700")
+    root.minsize(1000, 650)
+    root.resizable(True, True)
+
+    # =====================================================
+    # COLOUR PALETTE
+    # =====================================================
+
+    register_bg = "#F4F8FA"
+    register_navy = "#102A43"
+    register_teal = "#19A999"
+    register_teal_dark = "#128477"
+    register_text = "#19324D"
+    register_muted = "#7A8A9A"
+    white = "#FFFFFF"
+    input_bg = "#F8FAFC"
+    border = "#DCE6ED"
+
+    # =====================================================
+    # MAIN CONTAINER
+    # =====================================================
+
+    outer = tk.Frame(
+        root,
+        bg=register_bg
+    )
+
+    outer.pack(
+        fill="both",
+        expand=True
+    )
+
+    # =====================================================
+    # LEFT BRANDING PANEL
+    # =====================================================
+
+    left = tk.Frame(
+        outer,
+        bg=register_navy,
+        width=500
+    )
+
+    left.pack(
+        side="left",
+        fill="y"
+    )
+
     left.pack_propagate(False)
 
-    tk.Label(
-        left, text="Start your\nmoney journey.",
-        bg=NAVY, fg=WHITE,
-        font=("Arial", 27, "bold"),
-        justify="left"
-    ).pack(anchor="w", padx=42, pady=(90, 12))
+    # =====================================================
+    # SUBTLE BACKGROUND DECORATION
+    # =====================================================
 
-    tk.Label(
+    decoration = tk.Canvas(
         left,
-        text="Create one account and keep\nall your student finances organised.",
-        bg=NAVY, fg="#61D9D0",
+        bg=register_navy,
+        highlightthickness=0
+    )
+
+    decoration.place(
+        relx=0,
+        rely=0,
+        relwidth=1,
+        relheight=1
+    )
+
+    decoration.create_oval(
+        -180, 500, 250, 930,
+        fill="#153957",
+        outline=""
+    )
+
+    decoration.create_oval(
+        300, -150, 570, 120,
+        fill="#153957",
+        outline=""
+    )
+
+    decoration.create_oval(
+        315, 500, 540, 725,
+        fill="#174568",
+        outline=""
+    )
+
+    # =====================================================
+    # BRANDING
+    # =====================================================
+
+    brand = tk.Frame(
+        left,
+        bg=register_navy
+    )
+
+    brand.pack(
+        fill="x",
+        padx=45,
+        pady=(70, 0)
+    )
+
+    tk.Label(
+        brand,
+        text="STUDENT BUDGET TRACKER",
+        bg=register_navy,
+        fg=white,
+        font=("Arial", 19, "bold"),
+        anchor="w"
+    ).pack(
+        anchor="w"
+    )
+
+    tk.Frame(
+        brand,
+        bg=register_teal,
+        height=4,
+        width=75
+    ).pack(
+        anchor="w",
+        pady=(15, 18)
+    )
+
+    tk.Label(
+        brand,
+        text="Create your account and start\norganising your student finances.",
+        bg=register_navy,
+        fg="#B9C9D9",
         font=("Arial", 11),
-        justify="left"
-    ).pack(anchor="w", padx=42)
+        justify="left",
+        anchor="w"
+    ).pack(
+        anchor="w"
+    )
 
-    right = tk.Frame(outer, bg=WHITE)
-    right.pack(side="left", fill="both", expand=True)
+    # =====================================================
+    # SIMPLE ILLUSTRATION
+    # =====================================================
+
+    visual = tk.Frame(
+        left,
+        bg=register_navy
+    )
+
+    visual.pack(
+        fill="both",
+        expand=True,
+        padx=55,
+        pady=(35, 45)
+    )
+
+    canvas = tk.Canvas(
+        visual,
+        bg=register_navy,
+        highlightthickness=0
+    )
+
+    canvas.pack(
+        fill="both",
+        expand=True
+    )
+
+    # Main circle
+    canvas.create_oval(
+        55, 55,
+        285, 285,
+        fill="#173E5F",
+        outline=""
+    )
+
+    # User/account card
+    canvas.create_rectangle(
+        105, 105,
+        275, 225,
+        fill=white,
+        outline=""
+    )
+
+    # Teal header
+    canvas.create_rectangle(
+        105, 105,
+        275, 140,
+        fill=register_teal,
+        outline=""
+    )
+
+    # Profile circle
+    canvas.create_oval(
+        125, 155,
+        160, 190,
+        fill="#D9F5F1",
+        outline=""
+    )
+
+    # Profile details
+    canvas.create_rectangle(
+        175, 158,
+        245, 165,
+        fill="#D8E5EC",
+        outline=""
+    )
+
+    canvas.create_rectangle(
+        175, 175,
+        230, 182,
+        fill="#D8E5EC",
+        outline=""
+    )
+
+    # Small decorative check
+    canvas.create_oval(
+        250, 90,
+        295, 135,
+        fill="#66DED3",
+        outline=""
+    )
+
+    canvas.create_text(
+        272,
+        112,
+        text="✓",
+        fill=register_navy,
+        font=("Arial", 14, "bold")
+    )
+
+    canvas.create_text(
+        170,
+        335,
+        text="Start organised.",
+        fill=white,
+        font=("Arial", 17, "bold")
+    )
+
+    canvas.create_text(
+        170,
+        365,
+        text="Create your account and\nkeep your finances in one place.",
+        fill="#9FB5C8",
+        font=("Arial", 9),
+        justify="center"
+    )
+
+    # =====================================================
+    # RIGHT SIDE
+    # =====================================================
+
+    right = tk.Frame(
+        outer,
+        bg=register_bg
+    )
+
+    right.pack(
+        side="left",
+        fill="both",
+        expand=True
+    )
+
+    # =====================================================
+    # REGISTER CARD
+    # =====================================================
+
+    register_card = tk.Frame(
+        right,
+        bg=white,
+        highlightbackground=border,
+        highlightthickness=1
+    )
+
+    register_card.place(
+        relx=0.5,
+        rely=0.5,
+        anchor="center",
+        width=500,
+        height=570
+    )
+
+    # =====================================================
+    # HEADER
+    # =====================================================
 
     tk.Label(
-        right, text="Create Account",
-        bg=WHITE, fg=NAVY,
-        font=("Arial", 25, "bold")
-    ).pack(anchor="w", padx=52, pady=(60, 5))
+        register_card,
+        text="Create Account",
+        bg=white,
+        fg=register_text,
+        font=("Arial", 27, "bold")
+    ).pack(
+        anchor="w",
+        padx=55,
+        pady=(42, 5)
+    )
 
     tk.Label(
-        right, text="Set up your student budget tracker account.",
-        bg=WHITE, fg=MUTED, font=("Arial", 11)
-    ).pack(anchor="w", padx=52, pady=(0, 25))
+        register_card,
+        text="Create your account to get started.",
+        bg=white,
+        fg=register_muted,
+        font=("Arial", 10)
+    ).pack(
+        anchor="w",
+        padx=55
+    )
 
-    form = tk.Frame(right, bg=WHITE)
-    form.pack(fill="x", padx=52)
+    # =====================================================
+    # FORM
+    # =====================================================
+
+    form = tk.Frame(
+        register_card,
+        bg=white
+    )
+
+    form.pack(
+        fill="x",
+        padx=55,
+        pady=(27, 0)
+    )
 
     register_username = tk.StringVar()
     register_password = tk.StringVar()
     register_confirm = tk.StringVar()
 
-    for label, variable, show in [
-        ("Username", register_username, None),
-        ("Password", register_password, "*"),
-        ("Confirm Password", register_confirm, "*")
-    ]:
-        w, _ = field(form, label, variable, show=show)
-        w.pack(fill="x", pady=7)
+    # -----------------------------------------------------
+    # USERNAME
+    # -----------------------------------------------------
 
-    make_button(
-        right, "Create Account", register_user, primary=True
-    ).pack(fill="x", padx=52, pady=(22, 10), ipady=2)
+    tk.Label(
+        form,
+        text="Username",
+        bg=white,
+        fg=register_text,
+        font=("Arial", 9, "bold")
+    ).pack(
+        anchor="w",
+        pady=(0, 7)
+    )
 
-    make_button(
-        right, "Back to Login", show_login
-    ).pack(fill="x", padx=52, pady=8)
+    username_entry = tk.Entry(
+        form,
+        textvariable=register_username,
+        font=("Arial", 11),
+        bg=input_bg,
+        fg=register_text,
+        relief="flat",
+        bd=0,
+        highlightthickness=1,
+        highlightbackground=border,
+        highlightcolor=register_teal
+    )
 
+    username_entry.pack(
+        fill="x",
+        ipady=10
+    )
+
+    # -----------------------------------------------------
+    # PASSWORD
+    # -----------------------------------------------------
+
+    tk.Label(
+        form,
+        text="Password",
+        bg=white,
+        fg=register_text,
+        font=("Arial", 9, "bold")
+    ).pack(
+        anchor="w",
+        pady=(17, 7)
+    )
+
+    password_entry = tk.Entry(
+        form,
+        textvariable=register_password,
+        font=("Arial", 11),
+        bg=input_bg,
+        fg=register_text,
+        relief="flat",
+        bd=0,
+        show="*",
+        highlightthickness=1,
+        highlightbackground=border,
+        highlightcolor=register_teal
+    )
+
+    password_entry.pack(
+        fill="x",
+        ipady=10
+    )
+
+    # -----------------------------------------------------
+    # CONFIRM PASSWORD
+    # -----------------------------------------------------
+
+    tk.Label(
+        form,
+        text="Confirm Password",
+        bg=white,
+        fg=register_text,
+        font=("Arial", 9, "bold")
+    ).pack(
+        anchor="w",
+        pady=(17, 7)
+    )
+
+    confirm_entry = tk.Entry(
+        form,
+        textvariable=register_confirm,
+        font=("Arial", 11),
+        bg=input_bg,
+        fg=register_text,
+        relief="flat",
+        bd=0,
+        show="*",
+        highlightthickness=1,
+        highlightbackground=border,
+        highlightcolor=register_teal
+    )
+
+    confirm_entry.pack(
+        fill="x",
+        ipady=10
+    )
+
+    # =====================================================
+    # CREATE ACCOUNT BUTTON
+    # =====================================================
+
+    create_button = tk.Button(
+        register_card,
+        text="Create Account",
+        command=register_user,
+        bg=register_teal,
+        fg=white,
+        activebackground=register_teal_dark,
+        activeforeground=white,
+        relief="flat",
+        bd=0,
+        cursor="hand2",
+        font=("Arial", 10, "bold")
+    )
+
+    create_button.pack(
+        fill="x",
+        padx=55,
+        pady=(25, 14),
+        ipady=10
+    )
+
+    # =====================================================
+    # DIVIDER
+    # =====================================================
+
+    divider_area = tk.Frame(
+        register_card,
+        bg=white
+    )
+
+    divider_area.pack(
+        fill="x",
+        padx=55,
+        pady=(0, 14)
+    )
+
+    tk.Frame(
+        divider_area,
+        bg=border,
+        height=1
+    ).pack(
+        side="left",
+        fill="x",
+        expand=True
+    )
+
+    tk.Label(
+        divider_area,
+        text="  already have an account?  ",
+        bg=white,
+        fg=register_muted,
+        font=("Arial", 8)
+    ).pack(
+        side="left"
+    )
+
+    tk.Frame(
+        divider_area,
+        bg=border,
+        height=1
+    ).pack(
+        side="left",
+        fill="x",
+        expand=True
+    )
+
+    # =====================================================
+    # BACK TO LOGIN
+    # =====================================================
+
+    back_button = tk.Button(
+        register_card,
+        text="Back to Login",
+        command=show_login,
+        bg=white,
+        fg=register_teal_dark,
+        activebackground="#EAF8F6",
+        activeforeground=register_teal_dark,
+        relief="solid",
+        bd=1,
+        cursor="hand2",
+        font=("Arial", 9, "bold")
+    )
+
+    back_button.pack(
+        fill="x",
+        padx=55,
+        pady=(0, 10),
+        ipady=9
+    )
+
+    # =====================================================
+    # FOOTER
+    # =====================================================
+
+    tk.Label(
+        register_card,
+        text="Manage your money. Build better habits.",
+        bg=white,
+        fg=register_muted,
+        font=("Arial", 8)
+    ).pack(
+        pady=(5, 0)
+    )
+
+    username_entry.focus_set()
 
 # =========================================================
 # MAIN APP SHELL

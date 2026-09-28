@@ -1470,105 +1470,351 @@ def show_dashboard():
     clear_content()
     set_page_header(
         "Dashboard",
-        "A quick overview of your finances today."
+        "A simple overview of your student finances."
     )
     select_menu("Dashboard")
 
     username = get_username()
     budget, income, expenses, balance = get_financial_summary()
 
-    greeting = tk.Frame(content_frame, bg=BG)
-    greeting.pack(fill="x", pady=(0, 16))
+    # =====================================================
+    # WELCOME SECTION
+    # =====================================================
+
+    welcome = tk.Frame(
+        content_frame,
+        bg=BG
+    )
+    welcome.pack(
+        fill="x",
+        pady=(0, 22)
+    )
 
     tk.Label(
-        greeting, text=f"Good to see you, {username}.",
-        bg=BG, fg=TEXT, font=("Arial", 16, "bold")
-    ).pack(side="left")
+        welcome,
+        text=f"Good to see you, {username}.",
+        bg=BG,
+        fg=TEXT,
+        font=("Arial", 18, "bold")
+    ).pack(
+        side="left"
+    )
 
     tk.Label(
-        greeting, text=date.today().strftime("%d %B %Y"),
-        bg=BG, fg=MUTED, font=("Arial", 9)
-    ).pack(side="right", pady=5)
+        welcome,
+        text=date.today().strftime("%d %B %Y"),
+        bg=BG,
+        fg=MUTED,
+        font=("Arial", 9)
+    ).pack(
+        side="right",
+        pady=5
+    )
 
-    cards_frame = tk.Frame(content_frame, bg=BG)
-    cards_frame.pack(fill="x")
+    # =====================================================
+    # FINANCIAL SUMMARY CARDS
+    # =====================================================
 
-    data = [
-        ("Monthly Budget", f"RM {budget:,.2f}", TEAL),
-        ("Total Income", f"RM {income:,.2f}", BLUE),
-        ("Total Expenses", f"RM {expenses:,.2f}", RED),
-        ("Current Balance", f"RM {balance:,.2f}", YELLOW)
+    cards_frame = tk.Frame(
+        content_frame,
+        bg=BG
+    )
+    cards_frame.pack(
+        fill="x",
+        pady=(0, 20)
+    )
+
+    summary_data = [
+        ("MONTHLY BUDGET", f"RM {budget:,.2f}", TEAL),
+        ("TOTAL INCOME", f"RM {income:,.2f}", BLUE),
+        ("TOTAL EXPENSES", f"RM {expenses:,.2f}", RED),
+        ("CURRENT BALANCE", f"RM {balance:,.2f}", YELLOW)
     ]
 
-    for title, value, accent in data:
-        c, _ = card(cards_frame, title, value, accent)
-        c.pack(side="left", fill="both", expand=True, padx=5)
+    for title, value, accent in summary_data:
 
-    lower = tk.Frame(content_frame, bg=BG)
-    lower.pack(fill="both", expand=True, pady=18)
+        card_frame = tk.Frame(
+            cards_frame,
+            bg=WHITE,
+            highlightbackground=BORDER,
+            highlightthickness=1
+        )
+
+        card_frame.pack(
+            side="left",
+            fill="both",
+            expand=True,
+            padx=5
+        )
+
+        # Accent line
+        tk.Frame(
+            card_frame,
+            bg=accent,
+            height=4
+        ).pack(
+            fill="x"
+        )
+
+        inner = tk.Frame(
+            card_frame,
+            bg=WHITE
+        )
+
+        inner.pack(
+            fill="both",
+            expand=True,
+            padx=18,
+            pady=15
+        )
+
+        tk.Label(
+            inner,
+            text=title,
+            bg=WHITE,
+            fg=MUTED,
+            font=("Arial", 8, "bold")
+        ).pack(
+            anchor="w"
+        )
+
+        tk.Label(
+            inner,
+            text=value,
+            bg=WHITE,
+            fg=TEXT,
+            font=("Arial", 17, "bold")
+        ).pack(
+            anchor="w",
+            pady=(8, 2)
+        )
+
+    # =====================================================
+    # LOWER SECTION
+    # =====================================================
+
+    lower = tk.Frame(
+        content_frame,
+        bg=BG
+    )
+
+    lower.pack(
+        fill="both",
+        expand=True
+    )
+
+    # =====================================================
+    # RECENT TRANSACTIONS
+    # =====================================================
 
     recent = tk.Frame(
-        lower, bg=WHITE,
-        highlightbackground=BORDER, highlightthickness=1
+        lower,
+        bg=WHITE,
+        highlightbackground=BORDER,
+        highlightthickness=1
     )
-    recent.pack(side="left", fill="both", expand=True, padx=(0, 8))
+
+    recent.pack(
+        side="left",
+        fill="both",
+        expand=True,
+        padx=(0, 10)
+    )
+
+    recent_header = tk.Frame(
+        recent,
+        bg=WHITE
+    )
+
+    recent_header.pack(
+        fill="x",
+        padx=18,
+        pady=(17, 10)
+    )
 
     tk.Label(
-        recent, text="Recent Transactions",
-        bg=WHITE, fg=TEXT,
-        font=("Arial", 11, "bold")
-    ).pack(anchor="w", padx=16, pady=(14, 8))
+        recent_header,
+        text="Recent Transactions",
+        bg=WHITE,
+        fg=TEXT,
+        font=("Arial", 12, "bold")
+    ).pack(
+        side="left"
+    )
+
+    tk.Label(
+        recent_header,
+        text="Latest activity",
+        bg=WHITE,
+        fg=MUTED,
+        font=("Arial", 8)
+    ).pack(
+        side="right",
+        pady=2
+    )
 
     show_recent_transactions(recent)
 
+    # =====================================================
+    # BUDGET PROGRESS
+    # =====================================================
+
     side = tk.Frame(
-        lower, bg=WHITE,
-        highlightbackground=BORDER, highlightthickness=1,
+        lower,
+        bg=WHITE,
+        highlightbackground=BORDER,
+        highlightthickness=1,
         width=300
     )
-    side.pack(side="left", fill="y", padx=(8, 0))
+
+    side.pack(
+        side="left",
+        fill="y"
+    )
+
     side.pack_propagate(False)
 
     tk.Label(
-        side, text="Budget Progress",
-        bg=WHITE, fg=TEXT,
-        font=("Arial", 11, "bold")
-    ).pack(anchor="w", padx=16, pady=(14, 12))
+        side,
+        text="Budget Progress",
+        bg=WHITE,
+        fg=TEXT,
+        font=("Arial", 12, "bold")
+    ).pack(
+        anchor="w",
+        padx=20,
+        pady=(17, 3)
+    )
+
+    tk.Label(
+        side,
+        text="Your spending this month",
+        bg=WHITE,
+        fg=MUTED,
+        font=("Arial", 8)
+    ).pack(
+        anchor="w",
+        padx=20,
+        pady=(0, 20)
+    )
 
     spent = expenses
-    percentage = (spent / budget * 100) if budget else 0
-    percentage = min(percentage, 100)
 
-    tk.Label(
-        side, text=f"RM {spent:,.2f} spent",
-        bg=WHITE, fg=TEXT, font=("Arial", 14, "bold")
-    ).pack(anchor="w", padx=16)
-
-    tk.Label(
-        side, text=f"of RM {budget:,.2f} monthly budget",
-        bg=WHITE, fg=MUTED, font=("Arial", 9)
-    ).pack(anchor="w", padx=16, pady=(2, 12))
-
-    progress = ttk.Progressbar(
-        side, orient="horizontal",
-        length=240, mode="determinate"
+    percentage = (
+        spent / budget * 100
+        if budget
+        else 0
     )
-    progress["value"] = percentage
-    progress.pack(padx=16, fill="x")
+
+    percentage = min(max(percentage, 0), 100)
+
+    # Amount spent
+    tk.Label(
+        side,
+        text=f"RM {spent:,.2f}",
+        bg=WHITE,
+        fg=TEXT,
+        font=("Arial", 21, "bold")
+    ).pack(
+        anchor="w",
+        padx=20
+    )
 
     tk.Label(
-        side, text=f"{percentage:.0f}% used",
-        bg=WHITE, fg=MUTED, font=("Arial", 9)
-    ).pack(anchor="e", padx=16, pady=6)
+        side,
+        text=f"of RM {budget:,.2f} monthly budget",
+        bg=WHITE,
+        fg=MUTED,
+        font=("Arial", 9)
+    ).pack(
+        anchor="w",
+        padx=20,
+        pady=(3, 16)
+    )
+
+    # Progress bar
+    progress_frame = tk.Frame(
+        side,
+        bg="#E8F1F3",
+        height=9
+    )
+
+    progress_frame.pack(
+        fill="x",
+        padx=20
+    )
+
+    progress_frame.pack_propagate(False)
+
+    progress_fill = tk.Frame(
+        progress_frame,
+        bg=TEAL,
+        height=9
+    )
+
+    progress_fill.place(
+        relx=0,
+        rely=0,
+        relheight=1,
+        relwidth=percentage / 100
+    )
+
+    # Percentage
+    tk.Label(
+        side,
+        text=f"{percentage:.0f}% used",
+        bg=WHITE,
+        fg=TEAL,
+        font=("Arial", 9, "bold")
+    ).pack(
+        anchor="e",
+        padx=20,
+        pady=(8, 22)
+    )
+
+    # Divider
+    tk.Frame(
+        side,
+        bg=BORDER,
+        height=1
+    ).pack(
+        fill="x",
+        padx=20,
+        pady=(0, 18)
+    )
+
+    # Quick actions
+    tk.Label(
+        side,
+        text="QUICK ACTIONS",
+        bg=WHITE,
+        fg=MUTED,
+        font=("Arial", 8, "bold")
+    ).pack(
+        anchor="w",
+        padx=20,
+        pady=(0, 10)
+    )
 
     make_button(
-        side, "Add Expense", show_budget_page, primary=True
-    ).pack(fill="x", padx=16, pady=(18, 7))
+        side,
+        "Add Expense",
+        show_budget_page,
+        primary=True
+    ).pack(
+        fill="x",
+        padx=20,
+        pady=(0, 8)
+    )
 
     make_button(
-        side, "View Reports", show_reports_page
-    ).pack(fill="x", padx=16)
-
+        side,
+        "View Reports",
+        show_reports_page
+    ).pack(
+        fill="x",
+        padx=20
+    )
 
 def show_recent_transactions(parent):
     connection = finance_connection()

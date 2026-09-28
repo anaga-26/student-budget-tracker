@@ -1948,93 +1948,361 @@ def add_transaction(kind):
     )
     show_budget_page()
 
-
 def show_budget_page():
     clear_content()
     set_page_header(
         "Budget Management",
-        "Manage your budget, income and expenses in one place."
+        "Plan your budget, track income and manage your spending."
     )
     select_menu("Budget Management")
 
-    top = tk.Frame(content_frame, bg=BG)
-    top.pack(fill="x", pady=(0, 14))
+    # =====================================================
+    # FINANCIAL SUMMARY
+    # =====================================================
 
     budget, income, expenses, balance = get_financial_summary()
 
-    for title, value, accent in [
-        ("Budget", f"RM {budget:,.2f}", TEAL),
-        ("Income", f"RM {income:,.2f}", BLUE),
-        ("Expenses", f"RM {expenses:,.2f}", RED),
-        ("Balance", f"RM {balance:,.2f}", YELLOW)
-    ]:
-        c, _ = card(top, title, value, accent)
-        c.pack(side="left", fill="both", expand=True, padx=5)
+    summary_frame = tk.Frame(
+        content_frame,
+        bg=BG
+    )
 
-    forms = tk.Frame(content_frame, bg=BG)
-    forms.pack(fill="both", expand=True)
+    summary_frame.pack(
+        fill="x",
+        pady=(0, 18)
+    )
 
-    budget_box = make_form_card(forms, "Budget & Income", "Set your monthly budget and record income.")
-    budget_box.pack(side="left", fill="both", expand=True, padx=5)
+    summary_data = [
+        ("Monthly Budget", f"RM {budget:,.2f}", TEAL),
+        ("Total Income", f"RM {income:,.2f}", BLUE),
+        ("Total Expenses", f"RM {expenses:,.2f}", RED),
+        ("Current Balance", f"RM {balance:,.2f}", YELLOW)
+    ]
 
-    w, _ = field(budget_box, "Monthly Budget (RM)", budget_var)
-    w.pack(fill="x", padx=18, pady=(14, 8))
-    make_button(budget_box, "Save Budget", save_budget, primary=True).pack(fill="x", padx=18, pady=5)
+    for title, value, accent in summary_data:
+        summary_card, _ = card(
+            summary_frame,
+            title,
+            value,
+            accent
+        )
 
-    ttk.Separator(budget_box, orient="horizontal").pack(fill="x", padx=18, pady=14)
+        summary_card.pack(
+            side="left",
+            fill="both",
+            expand=True,
+            padx=5
+        )
 
-    w, _ = field(budget_box, "Income Amount (RM)", income_amount_var)
-    w.pack(fill="x", padx=18, pady=6)
+    # =====================================================
+    # MAIN CONTENT
+    # =====================================================
+
+    forms = tk.Frame(
+        content_frame,
+        bg=BG
+    )
+
+    forms.pack(
+        fill="both",
+        expand=True
+    )
+
+    # =====================================================
+    # BUDGET & INCOME CARD
+    # =====================================================
+
+    budget_box = tk.Frame(
+        forms,
+        bg=WHITE,
+        highlightbackground=BORDER,
+        highlightthickness=1
+    )
+
+    budget_box.pack(
+        side="left",
+        fill="both",
+        expand=True,
+        padx=(0, 7)
+    )
+
+    # Header
+    tk.Label(
+        budget_box,
+        text="Budget & Income",
+        bg=WHITE,
+        fg=TEXT,
+        font=("Arial", 14, "bold")
+    ).pack(
+        anchor="w",
+        padx=22,
+        pady=(20, 3)
+    )
 
     tk.Label(
-        budget_box, text="Income Category",
-        bg=WHITE, fg=TEXT, font=("Arial", 9, "bold")
-    ).pack(anchor="w", padx=18, pady=(4, 5))
-
-    income_menu = ttk.Combobox(
-        budget_box, textvariable=income_category_var,
-        values=["Allowance", "Parents", "Part-Time Job", "Freelance Work",
-                "Scholarship", "Gift", "Savings", "Other"],
-        state="readonly"
+        budget_box,
+        text="Set your monthly budget and record money coming in.",
+        bg=WHITE,
+        fg=MUTED,
+        font=("Arial", 9)
+    ).pack(
+        anchor="w",
+        padx=22,
+        pady=(0, 20)
     )
-    income_menu.pack(fill="x", padx=18)
-    make_button(budget_box, "Add Income", add_income).pack(fill="x", padx=18, pady=12)
 
-    expense_box = make_form_card(forms, "Expense", "Record spending and keep your balance updated.")
-    expense_box.pack(side="left", fill="both", expand=True, padx=5)
-
-    w, _ = field(expense_box, "Expense Amount (RM)", expense_amount_var)
-    w.pack(fill="x", padx=18, pady=(14, 8))
-
+    # Monthly budget
     tk.Label(
-        expense_box, text="Expense Category",
-        bg=WHITE, fg=TEXT, font=("Arial", 9, "bold")
-    ).pack(anchor="w", padx=18, pady=(4, 5))
-
-    expense_menu = ttk.Combobox(
-        expense_box, textvariable=expense_category_var,
-        values=["Food", "Transport", "Shopping", "Bills",
-                "Entertainment", "Education", "Health", "Other"],
-        state="readonly"
+        budget_box,
+        text="MONTHLY BUDGET",
+        bg=WHITE,
+        fg=MUTED,
+        font=("Arial", 8, "bold")
+    ).pack(
+        anchor="w",
+        padx=22,
+        pady=(0, 7)
     )
-    expense_menu.pack(fill="x", padx=18)
 
-    w, _ = field(expense_box, "Date (YYYY-MM-DD)", transaction_date_var)
-    w.pack(fill="x", padx=18, pady=12)
+    budget_field, _ = field(
+        budget_box,
+        "Amount (RM)",
+        budget_var
+    )
 
-    make_button(expense_box, "Add Expense", add_expense, primary=True).pack(
-        fill="x", padx=18, pady=5
+    budget_field.pack(
+        fill="x",
+        padx=22
     )
 
     make_button(
-        expense_box, "Check Current Balance",
+        budget_box,
+        "Save Budget",
+        save_budget,
+        primary=True
+    ).pack(
+        fill="x",
+        padx=22,
+        pady=(10, 20)
+    )
+
+    # Divider
+    tk.Frame(
+        budget_box,
+        bg=BORDER,
+        height=1
+    ).pack(
+        fill="x",
+        padx=22,
+        pady=(0, 20)
+    )
+
+    # Income
+    tk.Label(
+        budget_box,
+        text="ADD INCOME",
+        bg=WHITE,
+        fg=MUTED,
+        font=("Arial", 8, "bold")
+    ).pack(
+        anchor="w",
+        padx=22,
+        pady=(0, 7)
+    )
+
+    income_field, _ = field(
+        budget_box,
+        "Income Amount (RM)",
+        income_amount_var
+    )
+
+    income_field.pack(
+        fill="x",
+        padx=22,
+        pady=(0, 12)
+    )
+
+    tk.Label(
+        budget_box,
+        text="Income Category",
+        bg=WHITE,
+        fg=TEXT,
+        font=("Arial", 9, "bold")
+    ).pack(
+        anchor="w",
+        padx=22,
+        pady=(0, 6)
+    )
+
+    income_menu = ttk.Combobox(
+        budget_box,
+        textvariable=income_category_var,
+        values=[
+            "Allowance",
+            "Parents",
+            "Part-Time Job",
+            "Freelance Work",
+            "Scholarship",
+            "Gift",
+            "Savings",
+            "Other"
+        ],
+        state="readonly"
+    )
+
+    income_menu.pack(
+        fill="x",
+        padx=22
+    )
+
+    make_button(
+        budget_box,
+        "Add Income",
+        add_income
+    ).pack(
+        fill="x",
+        padx=22,
+        pady=(12, 20)
+    )
+
+    # =====================================================
+    # EXPENSE CARD
+    # =====================================================
+
+    expense_box = tk.Frame(
+        forms,
+        bg=WHITE,
+        highlightbackground=BORDER,
+        highlightthickness=1
+    )
+
+    expense_box.pack(
+        side="left",
+        fill="both",
+        expand=True,
+        padx=(7, 0)
+    )
+
+    # Header
+    tk.Label(
+        expense_box,
+        text="Record Expense",
+        bg=WHITE,
+        fg=TEXT,
+        font=("Arial", 14, "bold")
+    ).pack(
+        anchor="w",
+        padx=22,
+        pady=(20, 3)
+    )
+
+    tk.Label(
+        expense_box,
+        text="Record your spending to keep your balance updated.",
+        bg=WHITE,
+        fg=MUTED,
+        font=("Arial", 9)
+    ).pack(
+        anchor="w",
+        padx=22,
+        pady=(0, 20)
+    )
+
+    tk.Label(
+        expense_box,
+        text="EXPENSE DETAILS",
+        bg=WHITE,
+        fg=MUTED,
+        font=("Arial", 8, "bold")
+    ).pack(
+        anchor="w",
+        padx=22,
+        pady=(0, 7)
+    )
+
+    expense_field, _ = field(
+        expense_box,
+        "Expense Amount (RM)",
+        expense_amount_var
+    )
+
+    expense_field.pack(
+        fill="x",
+        padx=22,
+        pady=(0, 12)
+    )
+
+    tk.Label(
+        expense_box,
+        text="Expense Category",
+        bg=WHITE,
+        fg=TEXT,
+        font=("Arial", 9, "bold")
+    ).pack(
+        anchor="w",
+        padx=22,
+        pady=(0, 6)
+    )
+
+    expense_menu = ttk.Combobox(
+        expense_box,
+        textvariable=expense_category_var,
+        values=[
+            "Food",
+            "Transport",
+            "Shopping",
+            "Bills",
+            "Entertainment",
+            "Education",
+            "Health",
+            "Other"
+        ],
+        state="readonly"
+    )
+
+    expense_menu.pack(
+        fill="x",
+        padx=22
+    )
+
+    date_field, _ = field(
+        expense_box,
+        "Date (YYYY-MM-DD)",
+        transaction_date_var
+    )
+
+    date_field.pack(
+        fill="x",
+        padx=22,
+        pady=12
+    )
+
+    make_button(
+        expense_box,
+        "Add Expense",
+        add_expense,
+        primary=True
+    ).pack(
+        fill="x",
+        padx=22,
+        pady=(0, 10)
+    )
+
+    # Current balance button
+    make_button(
+        expense_box,
+        "Check Current Balance",
         lambda: messagebox.showinfo(
             "Current Balance",
             f"Income: RM {income:,.2f}\n"
             f"Expenses: RM {expenses:,.2f}\n"
             f"Balance: RM {balance:,.2f}"
         )
-    ).pack(fill="x", padx=18, pady=7)
+    ).pack(
+        fill="x",
+        padx=22,
+        pady=(0, 20)
+    )
 
 
 def make_form_card(parent, title, subtitle):

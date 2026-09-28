@@ -2327,64 +2327,288 @@ def make_form_card(parent, title, subtitle):
 
 def show_transactions_page():
     clear_content()
+
     set_page_header(
         "Transactions",
         "Review and manage your recorded income and expenses."
     )
+
     select_menu("Transactions")
 
-    box = tk.Frame(
-        content_frame, bg=WHITE,
-        highlightbackground=BORDER, highlightthickness=1
+    # =====================================================
+    # FINANCIAL SUMMARY
+    # =====================================================
+
+    budget, income, expenses, balance = get_financial_summary()
+
+    summary = tk.Frame(
+        content_frame,
+        bg=BG
     )
-    box.pack(fill="both", expand=True)
+
+    summary.pack(
+        fill="x",
+        pady=(0, 16)
+    )
+
+    summary_data = [
+        ("Total Income", f"RM {income:,.2f}", BLUE),
+        ("Total Expenses", f"RM {expenses:,.2f}", RED),
+        ("Current Balance", f"RM {balance:,.2f}", TEAL)
+    ]
+
+    for title, value, accent in summary_data:
+        c, _ = card(
+            summary,
+            title,
+            value,
+            accent
+        )
+
+        c.pack(
+            side="left",
+            fill="both",
+            expand=True,
+            padx=5
+        )
+
+    # =====================================================
+    # TRANSACTION HISTORY CARD
+    # =====================================================
+
+    box = tk.Frame(
+        content_frame,
+        bg=WHITE,
+        highlightbackground=BORDER,
+        highlightthickness=1
+    )
+
+    box.pack(
+        fill="both",
+        expand=True
+    )
+
+    # Header
+    header = tk.Frame(
+        box,
+        bg=WHITE
+    )
+
+    header.pack(
+        fill="x",
+        padx=20,
+        pady=(18, 12)
+    )
 
     tk.Label(
-        box, text="Transaction History",
-        bg=WHITE, fg=TEXT, font=("Arial", 12, "bold")
-    ).pack(anchor="w", padx=18, pady=(16, 10))
-
-    tree = ttk.Treeview(
-        box,
-        columns=("date", "category", "type", "amount"),
-        show="headings"
+        header,
+        text="Transaction History",
+        bg=WHITE,
+        fg=TEXT,
+        font=("Arial", 13, "bold")
+    ).pack(
+        side="left"
     )
 
-    for col, heading, width in [
-        ("date", "Date", 150),
-        ("category", "Category", 220),
-        ("type", "Type", 150),
-        ("amount", "Amount", 180)
-    ]:
-        tree.heading(col, text=heading)
-        tree.column(col, width=width, anchor="w")
+    tk.Label(
+        header,
+        text="Your latest income and expenses",
+        bg=WHITE,
+        fg=MUTED,
+        font=("Arial", 8)
+    ).pack(
+        side="left",
+        padx=(12, 0)
+    )
 
-    tree.pack(fill="both", expand=True, padx=18, pady=(0, 15))
+    # =====================================================
+    # TABLE
+    # =====================================================
+
+    table_frame = tk.Frame(
+        box,
+        bg=WHITE
+    )
+
+    table_frame.pack(
+        fill="both",
+        expand=True,
+        padx=20
+    )
+
+    columns = (
+        "date",
+        "category",
+        "type",
+        "amount"
+    )
+
+    tree = ttk.Treeview(
+        table_frame,
+        columns=columns,
+        show="headings",
+        selectmode="browse"
+    )
+
+    tree.heading(
+        "date",
+        text="DATE"
+    )
+
+    tree.heading(
+        "category",
+        text="CATEGORY"
+    )
+
+    tree.heading(
+        "type",
+        text="TYPE"
+    )
+
+    tree.heading(
+        "amount",
+        text="AMOUNT"
+    )
+
+    tree.column(
+        "date",
+        width=150,
+        anchor="w"
+    )
+
+    tree.column(
+        "category",
+        width=220,
+        anchor="w"
+    )
+
+    tree.column(
+        "type",
+        width=150,
+        anchor="w"
+    )
+
+    tree.column(
+        "amount",
+        width=180,
+        anchor="e"
+    )
+
+    # Scrollbar
+    scrollbar = ttk.Scrollbar(
+        table_frame,
+        orient="vertical",
+        command=tree.yview
+    )
+
+    tree.configure(
+        yscrollcommand=scrollbar.set
+    )
+
+    tree.pack(
+        side="left",
+        fill="both",
+        expand=True
+    )
+
+    scrollbar.pack(
+        side="right",
+        fill="y"
+    )
+
+    # =====================================================
+    # LOAD TRANSACTIONS
+    # =====================================================
 
     connection = finance_connection()
     cursor = connection.cursor()
+
     cursor.execute("""
         SELECT transaction_id, date, category, type, amount
         FROM Transactions
         WHERE user_id = ?
         ORDER BY date DESC, transaction_id DESC
     """, (logged_in_user_id,))
+
     rows = cursor.fetchall()
+
     connection.close()
 
     for transaction_id, dt, category, kind, amount in rows:
-        tree.insert(
-            "", "end", iid=str(transaction_id),
-            values=(dt, category, kind, f"RM {amount:.2f}")
+
+        amount_text = (
+            f"+ RM {amount:,.2f}"
+            if kind == "Income"
+            else f"- RM {amount:,.2f}"
         )
 
-    actions = tk.Frame(box, bg=WHITE)
-    actions.pack(fill="x", padx=18, pady=(0, 15))
+        tree.insert(
+            "",
+            "end",
+            iid=str(transaction_id),
+            values=(
+                dt,
+                category,
+                kind,
+                amount_text
+            ),
+            tags=(kind,)
+        )
+
+    # =====================================================
+    # TABLE STYLING
+    # =====================================================
+
+    tree.tag_configure(
+        "Income",
+        foreground=GREEN
+    )
+
+    tree.tag_configure(
+        "Expense",
+        foreground=RED
+    )
+
+    # =====================================================
+    # EMPTY STATE
+    # =====================================================
+
+    if not rows:
+
+        tk.Label(
+            table_frame,
+            text="No transactions recorded yet.",
+            bg=WHITE,
+            fg=MUTED,
+            font=("Arial", 9)
+        ).pack(
+            pady=25
+        )
+
+    # =====================================================
+    # ACTIONS
+    # =====================================================
+
+    actions = tk.Frame(
+        box,
+        bg=WHITE
+    )
+
+    actions.pack(
+        fill="x",
+        padx=20,
+        pady=(12, 18)
+    )
 
     def delete_selected():
+
         selected = tree.selection()
+
         if not selected:
-            messagebox.showwarning("Select transaction", "Choose a transaction first.")
+            messagebox.showwarning(
+                "Select transaction",
+                "Choose a transaction first."
+            )
             return
 
         if not messagebox.askyesno(
@@ -2395,21 +2619,40 @@ def show_transactions_page():
 
         connection = finance_connection()
         cursor = connection.cursor()
+
         cursor.execute(
-            "DELETE FROM Transactions WHERE transaction_id = ? AND user_id = ?",
-            (int(selected[0]), logged_in_user_id)
+            """
+            DELETE FROM Transactions
+            WHERE transaction_id = ?
+            AND user_id = ?
+            """,
+            (
+                int(selected[0]),
+                logged_in_user_id
+            )
         )
+
         connection.commit()
         connection.close()
+
         show_transactions_page()
 
     make_button(
-        actions, "Delete Selected", delete_selected
-    ).pack(side="left")
+        actions,
+        "Delete Selected",
+        delete_selected
+    ).pack(
+        side="left"
+    )
 
     make_button(
-        actions, "Add New Transaction", show_budget_page, primary=True
-    ).pack(side="right")
+        actions,
+        "Add New Transaction",
+        show_budget_page,
+        primary=True
+    ).pack(
+        side="right"
+    )
 
 
 # =========================================================

@@ -3,6 +3,8 @@ from tkinter import ttk, messagebox, filedialog
 import sqlite3
 from datetime import date
 from pathlib import Path
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 try:
     from PIL import Image, ImageTk
@@ -2702,22 +2704,78 @@ def show_reports_page():
     connection.close()
 
     if category_rows:
+        categories = [row[0] for row in category_rows]
+        totals = [row[1] for row in category_rows]
+
+        # Create pie chart
+        figure = Figure(figsize=(5, 3.2), dpi=100)
+        ax = figure.add_subplot(111)
+
+        ax.pie(
+            totals,
+            labels=categories,
+            autopct="%1.1f%%",
+            startangle=90
+        )
+
+        ax.set_title(
+            "Spending Distribution",
+            fontsize=11,
+            fontweight="bold"
+        )
+
+        # Keep the chart circular
+        ax.axis("equal")
+
+        # Embed Matplotlib chart into Tkinter
+        canvas = FigureCanvasTkAgg(
+            figure,
+            master=left
+        )
+
+        canvas.draw()
+
+        canvas.get_tk_widget().pack(
+            fill="both",
+            expand=True,
+            padx=10,
+            pady=10
+        )
+
+        # Display category totals below the chart
         for category, total in category_rows:
             row = tk.Frame(left, bg=WHITE)
-            row.pack(fill="x", padx=18, pady=6)
+            row.pack(fill="x", padx=18, pady=3)
+
             tk.Label(
-                row, text=category, bg=WHITE, fg=TEXT,
+                row,
+                text=category,
+                bg=WHITE,
+                fg=TEXT,
                 font=("Arial", 9, "bold")
             ).pack(side="left")
+
             tk.Label(
-                row, text=f"RM {total:.2f}", bg=WHITE, fg=TEXT,
+                row,
+                text=f"RM {total:.2f}",
+                bg=WHITE,
+                fg=TEXT,
                 font=("Arial", 9)
             ).pack(side="right")
+
     else:
-        tk.Label(
-            left, text="No expense data yet.",
-            bg=WHITE, fg=MUTED, font=("Arial", 9)
-        ).pack(anchor="w", padx=18, pady=18)
+            tk.Label(
+            left,
+            text="No expense data yet.",
+            bg=WHITE,
+            fg=MUTED,
+            font=("Arial", 9)
+        ).pack(
+            anchor="w",
+            padx=18,
+            pady=18
+        )
+    
 
     right = make_form_card(
         analytics, "Quick Reports",

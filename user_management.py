@@ -2829,7 +2829,6 @@ def show_reports_page():
 # =========================================================
 
 def show_profile_page():
-    global profile_photo
 
     clear_content()
     set_page_header(
@@ -2842,103 +2841,122 @@ def show_profile_page():
     layout.pack(fill="both", expand=True)
 
     profile_card = tk.Frame(
-        layout, bg=WHITE,
-        highlightbackground=BORDER, highlightthickness=1,
+        layout,
+        bg=WHITE,
+        highlightbackground=BORDER,
+        highlightthickness=1,
         width=340
     )
-    profile_card.pack(side="left", fill="y", padx=(0, 10))
+    profile_card.pack(
+        side="left",
+        fill="y",
+        padx=(0, 10)
+    )
     profile_card.pack_propagate(False)
 
-    avatar = tk.Label(
+    # User information
+    tk.Label(
         profile_card,
         text=get_username()[0].upper(),
-        bg=NAVY_2, fg=WHITE,
+        bg=NAVY_2,
+        fg=WHITE,
         font=("Arial", 38, "bold"),
-        width=4, height=2
-    )
-    avatar.pack(pady=(35, 15))
+        width=4,
+        height=2
+    ).pack(pady=(60, 20))
 
     tk.Label(
-        profile_card, text=get_username(),
-        bg=WHITE, fg=TEXT,
+        profile_card,
+        text=get_username(),
+        bg=WHITE,
+        fg=TEXT,
         font=("Arial", 16, "bold")
     ).pack()
 
     tk.Label(
-        profile_card, text="Student Budget Tracker",
-        bg=WHITE, fg=MUTED,
+        profile_card,
+        text="Student Budget Tracker",
+        bg=WHITE,
+        fg=MUTED,
         font=("Arial", 9)
     ).pack(pady=3)
 
-    def choose_photo():
-        global profile_photo, profile_photo_path
-        path = filedialog.askopenfilename(
-            title="Choose profile picture",
-            filetypes=[
-                ("PNG images", "*.png"),
-                ("GIF images", "*.gif"),
-                ("JPEG images", "*.jpg;*.jpeg")
-            ]
-        )
-        if not path:
-            return
-
-        profile_photo_path = path
-
-        try:
-            if PIL_AVAILABLE:
-                image = Image.open(path)
-                image = image.resize((110, 110))
-                profile_photo = ImageTk.PhotoImage(image)
-            else:
-                profile_photo = tk.PhotoImage(file=path)
-            avatar.config(image=profile_photo, text="")
-        except Exception:
-            messagebox.showerror(
-                "Picture error",
-                "The picture could not be loaded. PNG is recommended."
-            )
-
-    make_button(
-        profile_card, "Change Profile Picture", choose_photo
-    ).pack(fill="x", padx=28, pady=(22, 5))
-
-    tk.Label(
-        profile_card,
-        text="PNG recommended",
-        bg=WHITE, fg=MUTED, font=("Arial", 8)
-    ).pack()
-
     account = tk.Frame(
-        layout, bg=WHITE,
-        highlightbackground=BORDER, highlightthickness=1
+        layout,
+        bg=WHITE,
+        highlightbackground=BORDER,
+        highlightthickness=1
     )
-    account.pack(side="left", fill="both", expand=True, padx=(10, 0))
+    account.pack(
+        side="left",
+        fill="both",
+        expand=True,
+        padx=(10, 0)
+    )
 
     tk.Label(
-        account, text="Account Information",
-        bg=WHITE, fg=TEXT,
+        account,
+        text="Account Information",
+        bg=WHITE,
+        fg=TEXT,
         font=("Arial", 13, "bold")
-    ).pack(anchor="w", padx=24, pady=(22, 4))
+    ).pack(
+        anchor="w",
+        padx=24,
+        pady=(22, 4)
+    )
 
     tk.Label(
         account,
         text="Update your username or password below.",
-        bg=WHITE, fg=MUTED, font=("Arial", 9)
-    ).pack(anchor="w", padx=24, pady=(0, 18))
+        bg=WHITE,
+        fg=MUTED,
+        font=("Arial", 9)
+    ).pack(
+        anchor="w",
+        padx=24,
+        pady=(0, 18)
+    )
 
-    w, _ = field(account, "Username", profile_username_var)
-    w.pack(fill="x", padx=24, pady=7)
+    w, _ = field(
+        account,
+        "Username",
+        profile_username_var
+    )
+    w.pack(
+        fill="x",
+        padx=24,
+        pady=7
+    )
 
-    w, _ = field(account, "New Password", profile_password_var, show="*")
-    w.pack(fill="x", padx=24, pady=7)
+    w, _ = field(
+        account,
+        "New Password",
+        profile_password_var,
+        show="*"
+    )
+    w.pack(
+        fill="x",
+        padx=24,
+        pady=7
+    )
 
-    w, _ = field(account, "Confirm New Password", profile_confirm_var, show="*")
-    w.pack(fill="x", padx=24, pady=7)
+    w, _ = field(
+        account,
+        "Confirm New Password",
+        profile_confirm_var,
+        show="*"
+    )
+    w.pack(
+        fill="x",
+        padx=24,
+        pady=7
+    )
 
     profile_username_var.set(get_username())
     profile_password_var.set("")
     profile_confirm_var.set("")
+
 
     def save_profile():
         global logged_in_user_id
@@ -2948,11 +2966,17 @@ def show_profile_page():
         confirm = profile_confirm_var.get()
 
         if not username:
-            messagebox.showwarning("Invalid username", "Username cannot be empty.")
+            messagebox.showwarning(
+                "Invalid username",
+                "Username cannot be empty."
+            )
             return
 
         if password != confirm:
-            messagebox.showwarning("Password mismatch", "The passwords do not match.")
+            messagebox.showwarning(
+                "Password mismatch",
+                "The passwords do not match."
+            )
             return
 
         connection = sqlite3.connect(USER_DB)
@@ -2971,20 +2995,43 @@ def show_profile_page():
                 )
 
             connection.commit()
-            messagebox.showinfo("Profile updated", "Your profile has been updated.")
+
+            messagebox.showinfo(
+                "Profile updated",
+                "Your profile has been updated."
+            )
+
             show_app()
+
         except sqlite3.IntegrityError:
-            messagebox.showerror("Username unavailable", "That username is already in use.")
+            messagebox.showerror(
+                "Username unavailable",
+                "That username is already in use."
+            )
+
         finally:
             connection.close()
 
     make_button(
-        account, "Save Changes", save_profile, primary=True
-    ).pack(fill="x", padx=24, pady=(20, 7))
+        account,
+        "Save Changes",
+        save_profile,
+        primary=True
+    ).pack(
+        fill="x",
+        padx=24,
+        pady=(20, 7)
+    )
 
     make_button(
-        account, "Back to Dashboard", show_dashboard
-    ).pack(fill="x", padx=24, pady=5)
+        account,
+        "Back to Dashboard",
+        show_dashboard
+    ).pack(
+        fill="x",
+        padx=24,
+        pady=5
+    )
 
 
 # =========================================================
